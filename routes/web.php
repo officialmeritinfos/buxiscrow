@@ -80,8 +80,16 @@ Route::middleware('auth')->group( function () {
         Route::get('get_beneficiary/{id}',[\App\Http\Controllers\Web\User\Payouts::class,'getBeneficiaryId']);
         Route::get('transfers/{ref}/details',[\App\Http\Controllers\Web\User\Payouts::class,'payoutDetails'])
             ->where('ref','[A-Za-z0-9_]+');
+        //LOGOUT Route
+        Route::get('logout',[\App\Http\Controllers\Web\AuthController::class,'Logout']);
+    });
+    Route::middleware(['isVendor'])->prefix('merchant')->group(function (){
+        Route::get('dashboard',[\App\Http\Controllers\Web\Merchant\Dashboard::class,'index']);
+        Route::post('dashboard/set_pin',[\App\Http\Controllers\Web\Merchant\Dashboard::class,'setPin']);
 
-
+        /*======================= BUSINESS ROUTE ==========================================*/
+        Route::get('businesses',[\App\Http\Controllers\Web\Merchant\Business::class,'index']);
+        //LOGOUT Route
         Route::get('logout',[\App\Http\Controllers\Web\AuthController::class,'Logout']);
     });
 });

@@ -15,6 +15,7 @@ use App\Models\CurrencyAccepted;
 use App\Models\DepositMethods;
 use App\Models\GeneralSettings;
 use App\Models\Invoices;
+use App\Models\Escrows;
 use App\Models\Transactions;
 use App\Models\User;
 use App\Models\UserActivities;
@@ -40,7 +41,8 @@ class Dashboard extends BaseController
         $celebrate_ref = ($ref_count >= 1) ? 1:2;
         $balance = UserBalances::where('user',$user->id)->where('currency',$user->majorCurrency)->first();
         $userBalances = UserBalances::join('currency_accepted','currency_accepted.code','user_balances.currency')->where('user',$user->id)->get();
-        $escrows = Invoices::where('user',$user->id)->limit('5')->orderBy('id','desc')->get();
+        $invoices = Invoices::where('user',$user->id)->limit('5')->orderBy('id','desc')->get();
+        $escrows = Escrows::where('user',$user->id)->limit('5')->orderBy('id','desc')->get();
         $airtimes = Airtimes::where('country',$user->countryCode)->where('status',1)->get();
         $currencies = CurrencyAccepted::where('status',1)->get();
         $banks = AcceptedBanks::where('status',1)->get();
