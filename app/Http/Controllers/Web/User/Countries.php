@@ -14,6 +14,19 @@ class Countries extends BaseController
     public function getCountries(){
         $countries = Country::where('region','Africa')->get();
     }
+    public function returnCountries(){
+        $countries = Country::where('region','Africa')->get();
+        if (count($countries)>0) {
+            $stateData = [];
+            foreach ($countries as $country) {
+                $dataState['name'] = $country->name;
+                $dataState['code'] = $country->iso2;
+                array_push($stateData, $dataState);
+            }
+            return $this->sendResponse($stateData, 'Countries fetched');
+        }
+        return $this->sendError('Error validation',['error'=>'No data found or we do not support this region yet'],'422','Validation Failed');
+    }
     public function getCountryStates($country){
         $states = States::where('country_code',strtoupper($country))->orderBy('name','asc')->get();
         if (count($states)>0) {

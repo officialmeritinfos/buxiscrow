@@ -32,29 +32,52 @@
                             <hr class="message-inner-separator">
                             <p>
                                 Alas! No store was found in our record belonging to you. Nonetheless, you do not need a store
-                                to do business on <b>{{env('APP_NAME')}}</b>; you can
+                                to do business on <b>{{env('APP_NAME')}}</b>; you can receive payments using your payment link.<br><br>
+                                <a href="{{url('merchant/business/create-business')}}" class="btn btn-outline-info">Create Store</a>
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
         @else
-            @foreach($businesses as $businesses)
-                <div class="col-xl-12 col-md-12 col-lg-12">
-                    <div class="row">
-                        <div class="col-xl-4 col-lg-4 col-md-6">
-                            <div class="card" data-clickable="true" data-href="{{url('merchant/businesses')}}">
+            <div class="row">
+                <div class="col-xl-12 text-center">
+                    <a href="{{url('merchant/business/create-business')}}" class="btn btn-outline-info">Create Store</a>
+                </div><br><br>
+            @foreach($businesses as $business)
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <div class="card  mb-5">
                                 <div class="card-body">
-                                    <i class="fa fa-shopping-basket card-custom-icon icon-dropshadow-primary text-primary fs-60"></i>
-                                    <p class=" mb-1"></p>
-                                    <h2 class="mb-1 font-weight-bold">Add Business</h2>
-                                    <small class="mb-1 text-muted"><span class="text-info">Add a business</span></small>
+                                    <div class="media mt-0">
+                                        <figure class="rounded-circle align-self-start mb-0">
+                                            @if($business->logoUploaded==1)
+                                                <img alt="User Avatar" class="avatar brround avatar-md mr-3"
+                                                     src="{{asset('merchant/photos/'.$business->logo)}}" style="width:50px; height: 50px;">
+                                            @else
+                                                <img src="https://ui-avatars.com/api/?name={{$business->name}}&rounded=true&background=random"
+                                                     alt="Generic placeholder image" class="avatar brround avatar-md mr-3">
+                                            @endif
+                                        </figure>
+                                        <div class="media-body">
+                                            <h5 class="time-title p-0 mb-0 font-weight-semibold leading-normal">{{$business->name}}</h5>
+                                            {{ucwords(strtolower($business->businessState))}}, {{$business->businessCountry}}
+                                        </div>
+                                        <a class="btn btn-primary d-sm-block mr-2" href="{{url('merchant/business/'.$business->businessRef)}}">
+                                            <i class="fa fa-eye"></i>
+                                        </a>
+                                        <button class="btn btn-danger d-sm-block mr-2" data-toggle="modal"
+                                                data-target="#delete_business" data-ref="{{$business->businessRef}}" data-value="{{$business->name}}">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-footer text-secondary border-top">
+                                    Phone: <span class="text-primary">{{$business->businessPhone}}</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
             @endforeach
+            </div>
         @endif
     </div>
 </div>
@@ -63,4 +86,5 @@
 </div>
 </div><!-- end app-content-->
 </div>
+@include('dashboard.merchant.templates.business_modal')
 @include('dashboard.merchant.templates.footer')

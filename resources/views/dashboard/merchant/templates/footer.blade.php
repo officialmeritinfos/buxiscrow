@@ -112,6 +112,8 @@
 @include('dashboard.noti_js')
 <!-- INTERNAL JS INDEX2 END -->
 <script src="{{ asset('dashboard/merchant/dashboard.js')}}"></script>
+<script src="{{ asset('dashboard/merchant/business.js')}}"></script>
+<script src="{{ asset('dashboard/merchant/escrows.js')}}"></script>
 <script src="{{ asset('dashboard/public/assets/plugins/datatable/js/jquery.dataTables.js')}}"></script>
 <script src="{{ asset('dashboard/public/assets/plugins/datatable/js/dataTables.bootstrap4.js')}}"></script>
 <script src="{{ asset('dashboard/public/assets/plugins/datatable/js/dataTables.buttons.min.js')}}"></script>

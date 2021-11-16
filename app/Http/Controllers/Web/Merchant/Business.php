@@ -2,15 +2,32 @@
 
 namespace App\Http\Controllers\Web\Merchant;
 
+use App\Custom\CustomChecks;
+use App\Custom\RandomString;
+use App\Custom\Regular;
+use App\Events\AccountActivity;
+use App\Events\SendNotification;
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Controllers\Controller;
+use App\Models\BusinessCategory;
+use App\Models\BusinessCustomers;
 use App\Models\Businesses;
+use App\Models\BusinessSubcategory;
+use App\Models\BusinessType;
+use App\Models\EscrowPayments;
+use App\Models\Escrows;
 use App\Models\GeneralSettings;
+use App\Models\Refunds;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class Business extends BaseController
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
     public function index(){
         $generalSettings = GeneralSettings::where('id',1)->first();
         $user=Auth::user();
@@ -20,5 +37,192 @@ class Business extends BaseController
             'businesses'=>$businesses
         ];
         return view('dashboard.merchant.businesses',$dataView);
+    }
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
+    public function createBusiness(){
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $user=Auth::user();
+        $businesses = Businesses::where('merchant',$user->id)->get();
+        $businessCategories = BusinessCategory::where('status',1)->get();
+        $businessTypes = BusinessType::where('status',1)->get();
+        $dataView=[
+            'web'=>$generalSettings,'pageName'=>'Stores','slogan'=>'- Making safer transactions','user'=>$user,
+            'businesses'=>$businesses,'categories'=>$businessCategories,'businessTypes'=>$businessTypes
+        ];
+        return view('dashboard.merchant.create_business',$dataView);
+    }
+    public function getSubcategoryOfCategory($id){
+        $user=Auth::user();
+        $subcategories = BusinessSubcategory::where('category_id',$id)->get();
+        if (count($subcategories)<1){
+            return $this->sendError('Fetch Error',['error'=>'No data found.'],
+                '422','Fetch Failed');
+        }
+        $cateData = [];
+        foreach ($subcategories as $subcategory) {
+            $dataCate['id']=$subcategory->id;
+            $dataCate['name']=$subcategory->subcategory_name;
+            array_push($cateData,$dataCate);
+        }
+        return $this->sendResponse($cateData,'Subcategories fetched');
+    }
+    public function doCreation(Request $request){
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $user=Auth::user();
+        $validator = Validator::make($request->all(),
+            [
+                'name' => ['bail','required','string'], 'business_type' => ['bail','required','numeric','integer'], 'category' => ['bail','required','numeric','integer'],
+                'subcategory' => ['bail','nullable','alpha_num'], 'phone' => ['bail','nullable','string'], 'email' => ['bail','nullable','email'],
+                'country' => ['bail','required','string'], 'state' => ['bail','required','string'], 'city' => ['bail','required','string'],
+                'zip' => ['bail','required','alpha_num'], 'address' => ['bail','required','string'], 'description' => ['bail','required','string'],
+                'tags' => ['bail','required','string'],
+            ],
+            ['required'  =>':attribute is required'],
+            ['business_type'   =>'Business type',]
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return $this->sendError('Error validation',['error'=>$validator->errors()->all()],'422','Validation Failed');
+        }
+        $input = $request->input();
+        //first check if the business is crypto
+        $businessType = BusinessType::where('id',$input['business_type'])->where('status',1)->first();
+        if ($businessType->count()<1){
+            return $this->sendError('Validation Error',['error'=>'Invalid Business type'],
+                '422','Creation Failed');
+        }
+        //check if the business name already exists
+        $businesses = Businesses::where('name',$input['name'])->first();
+        if (!empty($businesses)){
+            return $this->sendError('Validation Error',['error'=>'Business name already taken. Is this an error? Please
+            contact support.'],
+                '422','Creation Failed');
+        }
+        $code = new RandomString('6');
+        $reference = $generalSettings->merchantCode.$code->randomStr().time();
+        $dataBusiness = [
+            'name'=>$input['name'],'businessRef'=>$reference,'category'=>$input['category'],'subcategory'=>$input['subcategory'],
+            'merchant'=>$user->id,'businessEmail'=>$input['email'],'businessPhone'=>$input['phone'],'businessCountry'=>$input['country'],
+            'businessState'=>$input['state'],'businessCity'=>$input['city'],'businessAddress'=>$input['address'],'Zip'=>$input['zip'],
+            'businessTag'=>$input['tags'],'businessDescription'=>$input['description'],'businessType'=>$input['business_type'],
+            'isCrypto'=>$businessType->isCrypto
+        ];
+       $add = Businesses::create($dataBusiness);
+       if (!empty($add)){
+           $details = 'A new store with name <b>'.$input['name'].'</b> has been created on your account.' ;
+           $dataActivity = ['merchant' => $user->id, 'activity' => 'Store creation', 'details' => $details,
+               'agent_ip' => $request->ip()];
+           event(new AccountActivity($user, $dataActivity));
+           event(new SendNotification($user, $details, '3'));
+           $success['created']=true;
+           return $this->sendResponse($success, 'Store created');
+       }
+        return $this->sendError('Creation Error',['error'=>'An error occurred while creating your store'],
+            '422','Creation Failed');
+    }
+    public function doRemove(Request $request){
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $user=Auth::user();
+        $validator = Validator::make($request->all(),
+            ['store_ref' => ['bail','required','string'], 'pin' => ['bail','required','digits:6','integer'],],
+            ['required'  =>':attribute is required'],
+            ['pin'   =>'Account Pin',]
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return $this->sendError('Error validation',['error'=>$validator->errors()->all()],'422','Validation Failed');
+        }
+        $input = $request->input();
+        $businessExists = Businesses::where('merchant',$user->id)->where('businessRef',$input['store_ref'])->first();
+        if (empty($businessExists)){
+            return $this->sendError('Deletion Error',['error'=>'Store does not belong to you.'],
+                '422','Deletion Failed');
+        }
+        //check if business has escrow
+        $hasEscrow = Escrows::where('business',$businessExists->id)->first();
+        if (!empty($hasEscrow)){
+            return $this->sendError('Deletion Error',['error'=>'A transaction has been carried out by this store.'],
+                '422','Deletion Failed');
+        }
+        $deleted = Businesses::where('id',$businessExists->id)->delete();
+        if (!$deleted){
+            return $this->sendError('Deletion Error',['error'=>'An error occurred while deleting your store'],
+                '422','Deletion Failed');
+        }
+        $success['removed']=true;
+        return $this->sendResponse($success, 'Store removed');
+    }
+    public function businessDetail($ref){
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $user=Auth::user();
+        $regular = new Regular();
+        $checks = new CustomChecks();
+        $businessExists = Businesses::where('merchant',$user->id)->where('businessRef',$ref)->first();
+        if (empty($businessExists)){
+            return back()->with('error','Store not found or does not belong to you.');
+        }
+        $category = $checks::categoryVar($businessExists->category);
+        $subcategory = $checks::subcategoryVar($businessExists->subcategory);
+        $businessType = BusinessType::where('id',$businessExists->businessType)->first();
+        $escrows = Escrows::where('merchant',$user->id)->where('business',$businessExists->id)->get();
+        $customers = BusinessCustomers::where('merchant',$user->id)->where('business',$businessExists->id)->get();
+        $refunds = Refunds::where('business',$businessExists->id)->get();
+        $escrowPayments = EscrowPayments::where('merchant',$user->id)
+            ->where('business',$businessExists->id)->where('currency','NGN')
+            ->where('paymentStatus',1)->sum('amountPaid');
+        $escrowPaymentsUSD = EscrowPayments::where('merchant',$user->id)
+            ->where('business',$businessExists->id)->where('currency','USD')
+            ->where('paymentStatus',1)->sum('amountPaid');
+        $escrowPaymentsPending = EscrowPayments::where('merchant',$user->id)
+            ->where('business',$businessExists->id)->where('paymentStatus','!=', 1)
+            ->where('currency','NGN')
+            ->sum('amountPaid');
+        $escrowPaymentsPendingUSD = EscrowPayments::where('merchant',$user->id)
+            ->where('business',$businessExists->id)
+            ->where('currency','USD')
+            ->where('paymentStatus','!=', 1)->sum('amountPaid');
+        $dataView=[
+            'web'=>$generalSettings,'pageName'=>'Store Data','slogan'=>'- Making safer transactions','user'=>$user,
+            'business'=>$businessExists,'type'=>$businessType,'category'=>$category,'subcategory'=>$subcategory,
+            'escrows'=>$escrows,'customers'=>$customers,'refunds'=>$refunds,
+            'completed_payments'=>$regular->formatNumbers($escrowPayments),
+            'completed_payments_usd'=>$regular->formatNumbers($escrowPaymentsUSD),
+            'pending_payments'=> $regular->formatNumbers($escrowPaymentsPending),
+            'pending_payments_usd'=> $regular->formatNumbers($escrowPaymentsPendingUSD)
+        ];
+        return view('dashboard.merchant.business_details',$dataView);
+    }
+    public function updateLogo(Request $request,$ref)
+    {
+        $user = Auth::user();
+        $validator = Validator::make($request->all(),
+            ['logo' => ['bail', 'required', 'mimes:jpg,png,jpeg', 'max:3000']],
+            ['required' => ':attribute is required'],
+            ['logo' => 'Business Logo']
+        )->stopOnFirstFailure(true);
+        if ($validator->fails()) {
+            return $this->sendError('Error validation', ['error' => $validator->errors()->all()], '422',
+                'Validation Failed');
+        }
+        $businessExists = Businesses::where('merchant',$user->id)->where('businessRef',$ref)->first();
+        if (empty($businessExists)){
+            return $this->sendError('Error validation', ['error' => 'Store not found'], '422',
+                'Validation Failed');
+        }
+        $fileName = time() . '_' . $request->file('logo')->getClientOriginalName();
+        $move = $request->file('logo')->move(public_path('merchant/photos/'), $fileName);
+        if ($move) {
+            $dataBusiness = ['logoUploaded' => 1, 'logo' => $fileName];
+            $updated = Businesses::where('id', $businessExists->id)->update($dataBusiness);
+            if (!empty($updated)) {
+                $success['uploaded'] = true;
+                return $this->sendResponse($success, 'Logo successfully updated');
+            } else {
+                return $this->sendError('File Error ', ['error' => 'An error occurred. Please try again or contact support'], '422', 'File Upload Fail');
+            }
+        } else {
+            return $this->sendError('File Error ', ['error' => $move], '422', 'File Upload Fail');
+        }
     }
 }

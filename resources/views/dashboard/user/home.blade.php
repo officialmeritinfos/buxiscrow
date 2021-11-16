@@ -179,11 +179,11 @@
 													<tbody>
                                                     @foreach($escrows as $escrow)
 														<tr>
-															<td>{{$ecrow->title}}</td>
-															<td class="text-center">{{$ecrow->reference}}</td>
-															<td class="text-center">{{$ecrow->currency}}</td>
-															<td class="text-center">{{number_format($ecrow->amount,2)}} <i class="fa fa-caret-down text-danger"></i></td>
-                                                            <td class="text-center">{{$ecrow->created_at}}</td>
+															<td>{{$escrow->title}}</td>
+															<td class="text-center">{{$escrow->reference}}</td>
+															<td class="text-center">{{$escrow->currency}}</td>
+															<td class="text-center">{{number_format($escrow->amount,2)}} <i class="fa fa-caret-down text-danger"></i></td>
+                                                            <td class="text-center">{{$escrow->created_at}}</td>
                                                             <td class="text-center">
                                                                 <a href="{{url('account/escrows/'.$escrow->reference.'/details')}}"
                                                                    class="btn btn-outline-warning"><i class="fa fa-eye"></i> </a>

@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Events\AccountActivity;
 use App\Events\AccountRecovery;
 use App\Events\AccountRecoveryMail;
+use App\Events\EscrowNotification;
 use App\Events\LoginMail;
 use App\Events\SendNotification;
 use App\Events\SendWelcomeMail;
@@ -16,6 +17,7 @@ use App\Listeners\EmailVerification;
 use App\Listeners\MerchantActivity;
 use App\Listeners\SendAccountLoginMail;
 use App\Listeners\SendAccountRecoveryMail;
+use App\Listeners\SendEscrowNotification;
 use App\Listeners\SendMail;
 use App\Listeners\SendRecoveryMail;
 use App\Listeners\SendTwoFactorMail;
@@ -64,6 +66,9 @@ class EventServiceProvider extends ServiceProvider
             UserActivity::class,
             MerchantActivity::class,
         ],
+        EscrowNotification::class =>[
+            SendEscrowNotification::class,
+        ]
     ];
 
     /**

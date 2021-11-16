@@ -28,8 +28,10 @@ Route::get('reset',[\App\Http\Controllers\Web\ResetController::class,'resetPassw
 Route::post('login',[\App\Http\Controllers\Web\AuthController::class,'signin']);
 Route::post('twoway',[\App\Http\Controllers\Web\AuthController::class,'twoWay']);
 
+Route::post('get-country',[\App\Http\Controllers\Web\User\Countries::class,'returnCountries']);
 Route::post('get-country-state/{country}',[\App\Http\Controllers\Web\User\Countries::class,'getCountryStates']);
 Route::post('get-state-city/{state}',[\App\Http\Controllers\Web\User\Countries::class,'getStateCities']);
+Route::get('get-logistics/{country}/{state}/{city}',[\App\Http\Controllers\Web\Merchant\Logistics::class,'getDeliverySerices']);
 
 Route::middleware('auth')->group( function () {
     Route::middleware(['isUser'])->prefix('account')->group(function (){
@@ -86,9 +88,22 @@ Route::middleware('auth')->group( function () {
     Route::middleware(['isVendor'])->prefix('merchant')->group(function (){
         Route::get('dashboard',[\App\Http\Controllers\Web\Merchant\Dashboard::class,'index']);
         Route::post('dashboard/set_pin',[\App\Http\Controllers\Web\Merchant\Dashboard::class,'setPin']);
-
         /*======================= BUSINESS ROUTE ==========================================*/
         Route::get('businesses',[\App\Http\Controllers\Web\Merchant\Business::class,'index']);
+        Route::get('business/create-business',[\App\Http\Controllers\Web\Merchant\Business::class,'createBusiness']);
+        Route::get('business/get_category_subcategory/{id}',[\App\Http\Controllers\Web\Merchant\Business::class,'getSubcategoryOfCategory']);
+        Route::post('add-business',[\App\Http\Controllers\Web\Merchant\Business::class,'doCreation']);
+        Route::post('remove-business',[\App\Http\Controllers\Web\Merchant\Business::class,'doRemove']);
+        Route::get('business/{ref}',[\App\Http\Controllers\Web\Merchant\Business::class,'businessDetail']);
+        Route::post('business/logo_change/{ref}',[\App\Http\Controllers\Web\Merchant\Business::class,'updateLogo']);
+        /*======================= ESCROW ROUTE ==========================================*/
+        Route::get('escrows',[\App\Http\Controllers\Web\Merchant\Escrow::class,'index']);
+        Route::get('new_escrow',[\App\Http\Controllers\Web\Merchant\Escrow::class,'createEscrow']);
+        Route::get('escrows/get_currency_charge/{currency}',[\App\Http\Controllers\Web\Merchant\Escrow::class,'getCurrencyChargeInternal']);
+        Route::post('add-escrow',[\App\Http\Controllers\Web\Merchant\Escrow::class,'doCreation']);
+        Route::get('escrows/{ref}/details',[\App\Http\Controllers\Web\Merchant\Escrow::class,'details']);
+        Route::get('escrows/notify_payer_pending_escrow_payment/{ref}',[\App\Http\Controllers\Web\Merchant\Escrow::class,'notifyPayerAboutPendingPayments']);
+        Route::post('add-escrow-delivery-service',[\App\Http\Controllers\Web\Merchant\Escrow::class, 'doLogistics']);
         //LOGOUT Route
         Route::get('logout',[\App\Http\Controllers\Web\AuthController::class,'Logout']);
     });

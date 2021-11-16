@@ -40,7 +40,7 @@
                 @elseif($user->isVerified == 3)
                     <p class="text-danger">
                         One or more of your submitted documents has an issue. Please visit
-                        <a href="{{url('account/documents/error')}}" class="text-blue">here</a> to view the file(s) that is/are
+                        <a href="{{url('merchant/documents/error')}}" class="text-blue">here</a> to view the file(s) that is/are
                         flagged.
                     </p>
                 @elseif($user->isVerified == 2)
@@ -48,7 +48,7 @@
                         Your account is unverified — this means you cannot make certain transactions such as withdrawal etc,
                         and only a lower amount of funds can be transacted through your account.
                         Please visit
-                        <a href="{{url('account/documents/verify')}}" class="text-blue">here</a> to submit necessary documents.
+                        <a href="{{url('merchant/documents/verify')}}" class="text-blue">here</a> to submit necessary documents.
                     </p>
                 @endif
             </div>
@@ -118,8 +118,8 @@
                     <div class="card-body">
                         <i class="fa fa-shopping-basket card-custom-icon icon-dropshadow-primary text-primary fs-60"></i>
                         <p class=" mb-1"></p>
-                        <h2 class="mb-1 font-weight-bold">Add Business</h2>
-                        <small class="mb-1 text-muted"><span class="text-info">Add a business</span></small>
+                        <h2 class="mb-1 font-weight-bold">Manage Businesses</h2>
+                        <small class="mb-1 text-muted"><span class="text-info">Add, and manage a store</span></small>
                     </div>
                 </div>
             </div>
@@ -172,11 +172,11 @@
                             <tbody>
                             @foreach($escrows as $escrow)
                                 <tr>
-                                    <td>{{$ecrow->title}}</td>
-                                    <td class="text-center">{{$ecrow->reference}}</td>
-                                    <td class="text-center">{{$ecrow->currency}}</td>
-                                    <td class="text-center">{{number_format($ecrow->amount,2)}} <i class="fa fa-caret-down text-danger"></i></td>
-                                    <td class="text-center">{{$ecrow->created_at}}</td>
+                                    <td>{{$escrow->title}}</td>
+                                    <td class="text-center">{{$escrow->reference}}</td>
+                                    <td class="text-center">{{$escrow->currency}}</td>
+                                    <td class="text-center">{{number_format($escrow->amount,2)}} <i class="fa fa-caret-down text-danger"></i></td>
+                                    <td class="text-center">{{$escrow->created_at}}</td>
                                     <td class="text-center">
                                         <a href="{{url('account/escrows/'.$escrow->reference.'/details')}}"
                                            class="btn btn-outline-warning"><i class="fa fa-eye"></i> </a>
