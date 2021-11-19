@@ -104,6 +104,18 @@ Route::middleware('auth')->group( function () {
         Route::get('escrows/{ref}/details',[\App\Http\Controllers\Web\Merchant\Escrow::class,'details']);
         Route::get('escrows/notify_payer_pending_escrow_payment/{ref}',[\App\Http\Controllers\Web\Merchant\Escrow::class,'notifyPayerAboutPendingPayments']);
         Route::post('add-escrow-delivery-service',[\App\Http\Controllers\Web\Merchant\Escrow::class, 'doLogistics']);
+        Route::post('cancel-escrow',[\App\Http\Controllers\Web\Merchant\Escrow::class, 'doCancel']);
+        Route::post('complete-escrow',[\App\Http\Controllers\Web\Merchant\Escrow::class, 'doComplete']);
+        Route::post('refund-escrow',[\App\Http\Controllers\Web\Merchant\Escrow::class, 'doCancel']);
+        /*======================= REFERRAL ROUTE ==========================================*/
+        Route::get('/referrals',['App\Http\Controllers\Web\Merchant\Referral','index']);
+        Route::get('/referrals/earnings',['App\Http\Controllers\Web\Merchant\Referral','earnings']);
+        /*======================= ACTIVITY ROUTE ==========================================*/
+        Route::get('/activities',['App\Http\Controllers\Web\Merchant\Activities','index']);
+        Route::get('/logins',['App\Http\Controllers\Web\Merchant\Activities','logins']);
+        /*======================= TRANSACTIONS ROUTE ==========================================*/
+        Route::get('/transactions',['App\Http\Controllers\Web\Merchant\Transactions','index']);
+        Route::get('/logins',['App\Http\Controllers\Web\Merchant\Transactions','details']);
         //LOGOUT Route
         Route::get('logout',[\App\Http\Controllers\Web\AuthController::class,'Logout']);
     });

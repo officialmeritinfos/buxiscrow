@@ -138,16 +138,16 @@
             <script src="{{ asset('dashboard/public/assets/plugins/fileupload/js/dropify.js')}}"></script>
             <script src="{{ asset('dashboard/public/assets/js/filupload.js')}}"></script>
             <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
-            <!--<script src="https://checkout.flutterwave.com/v3.js"></script>
-           <script>
+            <script src="https://checkout.flutterwave.com/v3.js"></script>
+            <!--<script>
 
-           </script>
-          <script>
-               window.fwSettings={
-                   'widget_id':72000000274
-               };
-               !function(){if("function"!=typeof window.FreshworksWidget){var n=function(){n.q.push(arguments)};n.q=[],window.FreshworksWidget=n}}()
-           </script>
-           <script type='text/javascript' src='https://widget.freshworks.com/widgets/72000000274.js' async defer></script>-->
+            </script>
+           <script>
+                window.fwSettings={
+                    'widget_id':72000000274
+                };
+                !function(){if("function"!=typeof window.FreshworksWidget){var n=function(){n.q.push(arguments)};n.q=[],window.FreshworksWidget=n}}()
+            </script>
+            <script type='text/javascript' src='https://widget.freshworks.com/widgets/72000000274.js' async defer></script>-->
 </body>
 </html>

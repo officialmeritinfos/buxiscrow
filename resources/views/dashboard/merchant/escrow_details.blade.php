@@ -122,23 +122,38 @@
                 <div class="card-body">
                     <div class="pro-user">
                         <div class="row">
-                            <div class="col-md-4">
-                                <h4 class="pro-user-username text-dark mb-1">Deadline To Deliver</h4>
-                                <p>{{date('d/m/Y h:i:s a',$escrow->deadline)}}</p>
+                            <div class="col-md-3">
+                                <h4 class="pro-user-username text-dark mb-1">Amount Paid</h4>
+                                <p>{{$payment->currency}} {{number_format($payment->amountPaid,2)}}</p>
                             </div>
-                            <div class="col-md-4">
-                                <h4 class="pro-user-username text-dark mb-1">Inspection period</h4>
-                                <p>{{date('d/m/Y h:i:s a',$escrow->inspectionPeriod)}}</p>
+                            <div class="col-md-3">
+                                <h4 class="pro-user-username text-dark mb-1">Payment Channel</h4>
+                                <p>{{$payment->paidThrough}}</p>
                             </div>
-                            <div class="col-md-4">
-                                <h4 class="pro-user-username text-dark mb-1">Is Cryptocurrency Transaction</h4>
+                            <div class="col-md-3">
+                                <h4 class="pro-user-username text-dark mb-1">Date Paid</h4>
+                                <p>{{date('d/m/Y h:i:s a',$payment->datePaid)}}</p>
+                            </div>
+                            <div class="col-md-3">
+                                <h4 class="pro-user-username text-dark mb-1">Transaction Reference</h4>
+                                <p><span class="badge badge-dark">{{$payment->transactionRef}}</span></p>
+                            </div>
+                            <div class="col-md-3">
+                                <h4 class="pro-user-username text-dark mb-1">Payment Status</h4>
                                 <p>
-                                    @switch($escrow->isCrypto)
+                                    @switch($payment->paymentStatus)
                                         @case(1)
-                                        <span class="badge badge-danger">Yes</span>
+                                            <span class="badge badge-success">Successful</span>
                                         @break
-                                        @default
-                                        <span class="badge badge-dark">No</span>
+                                        @case(2)
+                                            <span class="badge badge-primary">Pending</span>
+                                        @break
+                                        @case(3)
+                                        <span class="badge badge-danger">Failed</span>
+                                        @break
+                                        @case(5)
+                                        <span class="badge badge-warning">Refunded</span>
+                                        @break
                                     @endswitch
                                 </p>
                             </div>
@@ -161,9 +176,15 @@
                                 about this pending payment.
                             </p>
                             <br>
-                            <button class="btn btn-outline-info" id="notify_escrow_payer_pending_payment" data-value="{{$escrow->reference}}">
-                                Send Reminder
-                            </button>
+                            @if($escrow->deadline > time())
+                                <button class="btn btn-outline-info" id="notify_escrow_payer_pending_payment" data-value="{{$escrow->reference}}">
+                                    Send Reminder
+                                </button>
+                            @else
+                                <button class="btn btn-outline-danger" >
+                                    Transaction Expired
+                                </button>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -229,7 +250,7 @@
                                         <span class="badge badge-info">Pending</span>
                                         @break
                                         @case(3)
-                                        <span class="badge badge-danger">Pending</span>
+                                        <span class="badge badge-danger">cancelled</span>
                                         @break
                                     @endswitch()
                                 </p>
@@ -242,31 +263,50 @@
     @endif
     <div class="col-xl-12 col-lg-12 ">
         <div class="card box-widget widget-user">
+            <div class="card-header">
+                <h4>More</h4>
+            </div>
             <div class="card-body">
                 <div class="pro-user">
                     <div class="row">
-                        <div class="col-md-4">
-                            <h4 class="pro-user-username text-dark mb-1">Deadline To Deliver</h4>
-                            <p>{{date('d/m/Y h:i:s a',$escrow->deadline)}}</p>
-                        </div>
-                        <div class="col-md-4">
-                            <h4 class="pro-user-username text-dark mb-1">Inspection period</h4>
-                            <p>{{date('d/m/Y h:i:s a',$escrow->inspectionPeriod)}}</p>
-                        </div>
-                        <div class="col-md-4">
-                            <h4 class="pro-user-username text-dark mb-1">Is Cryptocurrency Transaction</h4>
+                        @if(!empty($payment))
+                            @if($payment->paymentStatus == 1)
+                                <div class="col-md-3">
+                                    <button class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#markDelivered" data-value="{{$escrow->reference}}">
+                                        Mark Delivered</button>
+                                </div>
+                                <div class="col-md-3">
+                                    <button class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#refundPayment" data-value="{{$escrow->reference}}">
+                                        Refund</button>
+                                </div>
+                            @endif
+                        @endif
+                        @if($escrow->status != 1 && $escrow->status != 3)
+
+                            <div class="col-md-3 mx-auto">
+                                <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#cancel_transaction" data-value="{{$escrow->reference}}">
+                                    Cancel Transaction</button>
+                            </div>
+                        @endif
+                    </div><br><br>
+                    <div class="row">
+                        <div class="col-md-3 mx-auto">
+                            <h4 class="pro-user-username text-dark mb-1">Transaction Status</h4>
                             <p>
-                                @switch($escrow->isCrypto)
+                                @switch($escrow->status)
                                     @case(1)
-                                    <span class="badge badge-danger">Yes</span>
+                                    <span class="badge badge-success">Completed</span>
                                     @break
-                                    @default
-                                    <span class="badge badge-dark">No</span>
-                                @endswitch
+                                    @case(2)
+                                    <span class="badge badge-info">Active</span>
+                                    @break
+                                    @case(3)
+                                    <span class="badge badge-danger">cancelled</span>
+                                    @break
+                                @endswitch()
                             </p>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>

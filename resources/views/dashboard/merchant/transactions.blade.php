@@ -18,7 +18,6 @@
     </div>
 </div>
 <!--End Page header-->
-
 <!-- Row -->
 <div class="row">
     <div class="col-12">
@@ -29,34 +28,29 @@
             </div>
             <div class="card-body">
                 <div class="">
-                    <p class="text-center">
-                        <a class="btn btn-outline-info btn-sm" href="{{url('merchant/new_escrow')}}">
-                            <i class="mdi mdi-plus" data-toggle="tooltip" title="New Escrow"></i>
-                        </a>
-                    </p>
                     <div class="table-responsive">
-                        @isset($escrows)
+                        @isset($transactions)
                             <table id="example" class="table table-bordered text-nowrap key-buttons">
                                 <thead>
                                 <tr>
-                                    <th class="border-bottom-0">Title</th>
+                                    <th class="border-bottom-0">Purpose</th>
                                     <th class="border-bottom-0">Reference</th>
                                     <th class="border-bottom-0">Currency</th>
                                     <th class="border-bottom-0">Amount</th>
                                     <th class="border-bottom-0">Status</th>
-                                    <th class="border-bottom-0">Date Created</th>
+                                    <th class="border-bottom-0">Time</th>
                                     <th class="border-bottom-0">Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @foreach($escrows as $escrow)
+                                @foreach($transactions as $transaction)
                                     <tr>
-                                        <td>{{$escrow->title}}</td>
-                                        <td>{{$escrow->reference}}</td>
-                                        <td>{{$escrow->currency}}</td>
-                                        <td>{{$escrow->amount}}</td>
+                                        <td>{{$transaction->title}}</td>
+                                        <td>{{$transaction->transactionRef}}</td>
+                                        <td>{{$transaction->currency}}</td>
+                                        <td>{{$transaction->amount}}</td>
                                         <td>
-                                            @switch($escrow->status)
+                                            @switch($transaction->paymentStatus)
                                                 @case(1)
                                                 <span class="badge badge-success">Successful</span>
                                                 @break
@@ -64,13 +58,13 @@
                                                 <span class="badge badge-primary">Pending</span>
                                                 @break
                                                 @case(3)
-                                                <span class="badge badge-danger">Cancelled/ Expired</span>
+                                                <span class="badge badge-danger">Failed</span>
                                                 @break
                                             @endswitch
                                         </td>
-                                        <td>{{$escrow->created_at}}</td>
+                                        <td>{{$transaction->created_at}}</td>
                                         <td>
-                                            <a href="{{url('merchant/escrows/'.$escrow->reference.'/details')}}"
+                                            <a href="{{url('merchant/transactions/'.$transaction->transactionRef.'/details')}}"
                                                class="btn btn-outline-warning"><i class="fa fa-eye"></i> </a>
                                         </td>
                                     </tr>
@@ -87,11 +81,8 @@
     </div>
 </div>
 <!-- /Row -->
-
-
-
 </div>
 </div><!-- end app-content-->
 </div>
-@include('dashboard.merchant.templates.business_modal')
+
 @include('dashboard.merchant.templates.footer')

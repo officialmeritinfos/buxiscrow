@@ -13,6 +13,7 @@ use App\Models\Country;
 use App\Models\CurrencyAccepted;
 use App\Models\DeliveryLocations;
 use App\Models\DeliveryService;
+use App\Models\EscrowApprovals;
 use App\Models\EscrowDeliveries;
 use App\Models\EscrowPayments;
 use App\Models\EscrowReports;
@@ -22,6 +23,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Escrows;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -197,10 +199,11 @@ class Escrow extends BaseController
         }else{
             $logisticCompany = '';
         }
+        $escrow_approvals = EscrowApprovals::where('escrowId',$escrow->id)->where('escrowRef',$escrow->reference)->first();
         $dataView=[
             'web'=>$generalSettings,'pageName'=>'Escrow Details','slogan'=>'- Making safer transactions','user'=>$user,
             'escrow'=>$escrow,'business'=>$business,'payment'=>$payment,'report'=>$reports,'payer'=>$payer,'escrow_delivery'=>$escrow_delivery,
-            'logisticsLocation'=>$logisticsLocation,'logistics'=>$logisticCompany
+            'logisticsLocation'=>$logisticsLocation,'logistics'=>$logisticCompany,'escrow_approvals'=>$escrow_approvals
         ];
         return view('dashboard.merchant.escrow_details',$dataView);
     }
@@ -249,6 +252,10 @@ class Escrow extends BaseController
         $escrow = Escrows::where('reference',$input['ref'])->where('merchant',$user->id)->first();
         if (empty($escrow)){
             return $this->sendError('Escrow Error',['error'=>'Escrow not found'],
+                '422','Update Failed');
+        }
+        if ($escrow->status ==3){
+            return $this->sendError('Escrow Error',['error'=>'Escrow was cancelled or has expired'],
                 '422','Update Failed');
         }
         $logisticsLocation = DeliveryLocations::where('id',$input['service'])->first();
@@ -308,6 +315,231 @@ class Escrow extends BaseController
             return $this->sendResponse($success, 'Delivery service add');
         }
         return $this->sendError('Creation Error',['error'=>'Error add delivery service'],
+            '422','Update Failed');
+    }
+    public function doCancel(Request $request){
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $user=Auth::user();
+        $validator = Validator::make($request->all(),
+            [
+                'ref' => ['bail','required','string'],
+                'pin' => ['bail','required','string'],
+            ],
+            ['required'  =>':attribute is required'],
+            ['ref'   =>'Reference','pin'=>'Transaction Pin']
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return $this->sendError('Error validation',['error'=>$validator->errors()->all()],'422','Validation Failed');
+        }
+        $input = $request->input();
+
+        $hashed = Hash::check($input['pin'],$user->transPin);
+        if (!$hashed){
+            return $this->sendError('Validation Error',['error'=>'Invalid Account Pin'],
+                '422','Validation Failed');
+        }
+        //get the escrow
+        $escrow = Escrows::where('reference',$input['ref'])->where('merchant',$user->id)->first();
+        if (empty($escrow)){
+            return $this->sendError('Escrow Error',['error'=>'Escrow not found'],
+                '422','Update Failed');
+        }
+        if ($escrow->status == 3){
+            return $this->sendError('Escrow Error',['error'=>'Escrow already cancelled'],
+                '422','Update Failed');
+        }
+        if ($escrow->status == 1){
+            return $this->sendError('Escrow Error',['error'=>'Escrow already completed'],
+                '422','Update Failed');
+        }
+        $payer = User::where('id',$escrow->user)->first();
+        $reference = $input['ref'];
+        $business = Businesses::where('id',$escrow->business)->first();
+        //check if it has payment and queue for refund
+        $payments = EscrowPayments::where('escrowId',$escrow->id)->first();
+        if (!empty($payments)){$dataPayment = ['isQueuedForRefund'=>1];$hasPayment = 1;}else{$hasPayment = 2;}
+        $dataEscrow = ['status'=>3];
+        $update = Escrows::where('id',$escrow->id)->update($dataEscrow);
+        if (!empty($update)){
+            if ($hasPayment==1){EscrowPayments::where('id',$payments->id)->update($dataPayment);}
+            //Send Notification to Payer
+            $detailsToPayer = 'Your escrow with reference <b>'.$reference.'</b> which was created for you by
+            <b>'.$business->name.'</b>has been cancelled by the seller.' ;
+            $dataActivityUser = ['user' => $payer->id, 'activity' => 'Escrow cancellation', 'details' => $detailsToPayer,
+                'agent_ip' => $request->ip()];
+            event(new AccountActivity($payer, $dataActivityUser));
+            event(new EscrowNotification($payer, $detailsToPayer, 'Escrow Transaction Cancelled'));
+
+            //Send Notification To merchant
+            $detailsToMerchant = 'Escrow transaction with reference <b>'.$reference.'</b> was cancelled' ;
+            $dataActivityMerchant = ['merchant' => $user->id, 'activity' => 'Delivery Service', 'details' => $detailsToMerchant,
+                'agent_ip' => $request->ip()];
+            event(new AccountActivity($user, $dataActivityMerchant));
+
+            $success['cancelled']=true;
+            return $this->sendResponse($success, 'Transaction Cancelled');
+        }
+        return $this->sendError('Creation Error',['error'=>'Error cancelling transaction'],
+            '422','Update Failed');
+    }
+    public function doComplete(Request $request){
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $user=Auth::user();
+        $validator = Validator::make($request->all(),
+            [
+                'ref' => ['bail','required','string'],
+                'pin' => ['bail','required','string'],
+            ],
+            ['required'  =>':attribute is required'],
+            ['ref'   =>'Reference','pin'=>'Transaction Pin']
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return $this->sendError('Error validation',['error'=>$validator->errors()->all()],'422','Validation Failed');
+        }
+        $input = $request->input();
+
+        $hashed = Hash::check($input['pin'],$user->transPin);
+        if (!$hashed){
+            return $this->sendError('Validation Error',['error'=>'Invalid Account Pin'],
+                '422','Validation Failed');
+        }
+        //get the escrow
+        $escrow = Escrows::where('reference',$input['ref'])->where('merchant',$user->id)->first();
+        if (empty($escrow)){
+            return $this->sendError('Escrow Error',['error'=>'Escrow not found'],
+                '422','Update Failed');
+        }
+        if ($escrow->status == 3){
+            return $this->sendError('Escrow Error',['error'=>'Escrow already cancelled'],
+                '422','Update Failed');
+        }
+        if ($escrow->status == 1){
+            return $this->sendError('Escrow Error',['error'=>'Escrow already completed'],
+                '422','Update Failed');
+        }
+        //check if the transaction has a report against it
+        $escrowHasReport = EscrowReports::where('escrow_id',$escrow->id)->where('resolved','!=',1)->first();
+        if (!empty($escrowHasReport)){
+            return $this->sendError('Escrow Error',['error'=>'There is a pending report on this transaction. Please hold on till
+            this is resolved.'],
+                '422','Update Failed');
+        }
+        //check if this transaction has been updated earlier
+        $escrowWasApproved = EscrowApprovals::where('escrowId',$escrow->id)->where('approvedByMerchant',1)->first();
+        if (!empty($escrowWasApproved)){
+            return $this->sendError('Escrow Error',['error'=>'You have already approved this transaction.'],
+                '422','Update Failed');
+        }
+        if ($escrow->useDelivery == 1) {$dataDelivery = ['status' => 1];$hasDelivery = 1;}else{$hasDelivery = 2;}
+        $payer = User::where('id',$escrow->user)->first();
+        $reference = $input['ref'];
+        $business = Businesses::where('id',$escrow->business)->first();
+        //check if it has payment and queue for refund
+        $payments = EscrowPayments::where('escrowId',$escrow->id)->first();
+        $dataEscrow = ['status'=>2];
+
+        $update = Escrows::where('id',$escrow->id)->update($dataEscrow);
+        if (!empty($update)){
+            if ($hasDelivery==1){EscrowDeliveries::where('escrowId',$escrow->id)->update($dataDelivery);}
+            //Send Notification to Payer
+            $detailsToPayer = 'Your escrow with reference <b>'.$reference.'</b> which was created for you by
+            <b>'.$business->name.'</b>has been marked as <b>delivered</b> by the seller. We believe you have received the goods in good
+            condition. If this is not the case, you have till <b>'.date('d-m-Y h:i:s a', $escrow->inspectionPeriod).'</b> to either
+            approve this transaction or report it to us. <br> <b>Note:</b> If after the above date you did not carry out any activity, we will
+            release the money to the seller, and this is non-refundable.' ;
+            $dataActivityUser = ['user' => $payer->id, 'activity' => 'Escrow Approval', 'details' => $detailsToPayer,
+                'agent_ip' => $request->ip()];
+            event(new AccountActivity($payer, $dataActivityUser));
+            event(new EscrowNotification($payer, $detailsToPayer, 'Escrow Transaction Approved'));
+
+            //Send Notification To merchant
+            $detailsToMerchant = 'Escrow transaction with reference <b>'.$reference.'</b> was marked as completed.' ;
+            $dataActivityMerchant = ['merchant' => $user->id, 'activity' => 'Escrow Approval', 'details' => $detailsToMerchant,
+                'agent_ip' => $request->ip()];
+            event(new AccountActivity($user, $dataActivityMerchant));
+
+            $success['cancelled']=true;
+            return $this->sendResponse($success, 'Transaction Marked as completed');
+        }
+        return $this->sendError('Creation Error',['error'=>'Error completing transaction'],
+            '422','Update Failed');
+    }
+    public function doRefund(Request $request){
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $user=Auth::user();
+        $validator = Validator::make($request->all(),
+            [
+                'ref' => ['bail','required','string'],
+                'pin' => ['bail','required','string'],
+            ],
+            ['required'  =>':attribute is required'],
+            ['ref'   =>'Reference','pin'=>'Transaction Pin']
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return $this->sendError('Error validation',['error'=>$validator->errors()->all()],'422','Validation Failed');
+        }
+        $input = $request->input();
+
+        $hashed = Hash::check($input['pin'],$user->transPin);
+        if (!$hashed){
+            return $this->sendError('Validation Error',['error'=>'Invalid Account Pin'],
+                '422','Validation Failed');
+        }
+        //get the escrow
+        $escrow = Escrows::where('reference',$input['ref'])->where('merchant',$user->id)->first();
+        if (empty($escrow)){
+            return $this->sendError('Escrow Error',['error'=>'Escrow not found'],
+                '422','Update Failed');
+        }
+        if ($escrow->status == 3){
+            return $this->sendError('Escrow Error',['error'=>'Escrow already cancelled'],
+                '422','Update Failed');
+        }
+        if ($escrow->status == 1){
+            return $this->sendError('Escrow Error',['error'=>'Escrow already completed'],
+                '422','Update Failed');
+        }
+        //check if the transaction has a report against it
+        $escrowHasReport = EscrowReports::where('escrow_id',$escrow->id)->where('resolved','!=',1)->first();
+        if (!empty($escrowHasReport)){
+            return $this->sendError('Escrow Error',['error'=>'There is a pending report on this transaction. Please hold on till
+            this is resolved.'],
+                '422','Update Failed');
+        }
+        if ($escrow->useDelivery == 1) {$dataDelivery = ['status' => 3];$hasDelivery = 1;}else{$hasDelivery = 2;}
+        $payer = User::where('id',$escrow->user)->first();
+        $reference = $input['ref'];
+        $business = Businesses::where('id',$escrow->business)->first();
+        //check if it has payment and queue for refund
+        $payments = EscrowPayments::where('escrowId',$escrow->id)->first();
+        if (empty($payments)){
+            return $this->sendError('Escrow Error',['error'=>'There is no corresponding payment received for this transaction yet'],
+                '422','Update Failed');
+        }
+        $dataEscrow = ['status'=>2];
+        $dataPayment = ['isQueuedForRefund'=>1,'paymentStatus'=>5];
+        $update = Escrows::where('id',$escrow->id)->update($dataEscrow);
+        if (!empty($update)){
+            EscrowPayments::where('id',$payments->id)->update($dataPayment);
+            if ($hasDelivery==1){EscrowDeliveries::where('escrowId',$escrow->id)->update($dataDelivery);}
+            //Send Notification to Payer
+            $detailsToPayer = 'Your escrow with reference <b>'.$reference.'</b> which was created for you by
+            <b>'.$business->name.'</b>has been queued for refund. ' ;
+            $dataActivityUser = ['user' => $payer->id, 'activity' => 'Escrow Refund', 'details' => $detailsToPayer,
+                'agent_ip' => $request->ip()];
+            event(new AccountActivity($payer, $dataActivityUser));
+            event(new EscrowNotification($payer, $detailsToPayer, 'Escrow Refund'));
+
+            //Send Notification To merchant
+            $detailsToMerchant = 'Escrow transaction with reference <b>'.$reference.'</b> was refunded' ;
+            $dataActivityMerchant = ['merchant' => $user->id, 'activity' => 'Escrow Refund', 'details' => $detailsToMerchant,
+                'agent_ip' => $request->ip()];
+            event(new AccountActivity($user, $dataActivityMerchant));
+
+            $success['cancelled']=true;
+            return $this->sendResponse($success, 'Transaction Marked as completed');
+        }
+        return $this->sendError('Creation Error',['error'=>'Error completing transaction'],
             '422','Update Failed');
     }
 }

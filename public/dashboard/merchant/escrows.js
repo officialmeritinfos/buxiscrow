@@ -581,6 +581,246 @@ var EscrowRequests = function (){
             });
         });
     }
+    var cancelEscrow = function (){
+        $('#cancel_transaction').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var ref = button.data('value');
+            var modal = $(this)
+            modal.find('.modal-title').text('Cancel Transaction');
+            $('input[name="ref"]').val(ref);
+
+            var baseUrl = '';
+        });
+        //check if there is a submission
+        $('#cancel_escrow').submit(function(e) {
+            e.preventDefault();
+            var baseUrls=$('#cancel_escrow').attr('action');
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $.ajax({
+                url: baseUrls,
+                method: "POST",
+                data:$(this).serialize(),
+                dataType:"json",
+                beforeSend:function(){
+                    $('#cancel_escrows').attr('disabled', true);
+                    $("#cancel_escrow :input").prop("readonly", true);
+                    $("#cancel_escrows").LoadingOverlay("show",{
+                        text        : "cancelling",
+                        size        : "20"
+                    });
+                },
+                success:function(data)
+                {
+                    if(data.error)
+                    {
+                        toastr.options = {
+                            "closeButton" : true,
+                            "progressBar" : true
+                        }
+                        toastr.error(data.data.error);
+                        //return to natural stage
+                        setTimeout(function(){
+                            $('#cancel_escrows').attr('disabled', false);
+                            $("#cancel_escrow :input").prop("readonly", false);
+                            $("#cancel_escrows").LoadingOverlay("hide");
+                        }, 3000);
+                    }
+                    if(data.success)
+                    {
+                        toastr.options = {
+                            "closeButton" : true,
+                            "progressBar" : true
+                        }
+                        toastr.success(data.message);
+                        //return to natural stage
+                        setTimeout(function(){
+                            $('#cancel_escrows').attr('disabled', false);
+                            $("#cancel_escrow :input").prop("readonly", false);
+                            $("#cancel_escrows").LoadingOverlay("hide");
+                            location.reload();
+                        }, 3000);
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown){
+                    toastr.options = {
+                        "closeButton" : true,
+                        "progressBar" : true
+                    }
+                    toastr.error(errorThrown);
+                    //return to natural stage
+                    setTimeout(function(){
+                        $('#cancel_escrow :input').attr('disabled', false);
+                        $("#cancel_escrows").LoadingOverlay("hide");
+                    }, 3000);
+                }
+
+            });
+        });
+    }
+    var completeEscrow = function (){
+        $('#markDelivered').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var ref = button.data('value');
+            var modal = $(this)
+            modal.find('.modal-title').text('Mark Transaction as Completed');
+            $('input[name="ref"]').val(ref);
+
+            var baseUrl = '';
+        });
+        //check if there is a submission
+        $('#complete_escrow').submit(function(e) {
+            e.preventDefault();
+            var baseUrls=$('#complete_escrow').attr('action');
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $.ajax({
+                url: baseUrls,
+                method: "POST",
+                data:$(this).serialize(),
+                dataType:"json",
+                beforeSend:function(){
+                    $('#complete_escrows').attr('disabled', true);
+                    $("#complete_escrow :input").prop("readonly", true);
+                    $("#complete_escrows").LoadingOverlay("show",{
+                        text        : "updating",
+                        size        : "20"
+                    });
+                },
+                success:function(data)
+                {
+                    if(data.error)
+                    {
+                        toastr.options = {
+                            "closeButton" : true,
+                            "progressBar" : true
+                        }
+                        toastr.error(data.data.error);
+                        //return to natural stage
+                        setTimeout(function(){
+                            $('#complete_escrows').attr('disabled', false);
+                            $("#complete_escrow :input").prop("readonly", false);
+                            $("#complete_escrows").LoadingOverlay("hide");
+                        }, 3000);
+                    }
+                    if(data.success)
+                    {
+                        toastr.options = {
+                            "closeButton" : true,
+                            "progressBar" : true
+                        }
+                        toastr.success(data.message);
+                        //return to natural stage
+                        setTimeout(function(){
+                            $('#complete_escrows').attr('disabled', false);
+                            $("#complete_escrow :input").prop("readonly", false);
+                            $("#complete_escrows").LoadingOverlay("hide");
+                            location.reload();
+                        }, 3000);
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown){
+                    toastr.options = {
+                        "closeButton" : true,
+                        "progressBar" : true
+                    }
+                    toastr.error(errorThrown);
+                    //return to natural stage
+                    setTimeout(function(){
+                        $('#complete_escrow :input').attr('disabled', false);
+                        $("#complete_escrows").LoadingOverlay("hide");
+                    }, 3000);
+                }
+
+            });
+        });
+    }
+    var refundEscrow = function (){
+        $('#refundPayment').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var ref = button.data('value');
+            var modal = $(this)
+            modal.find('.modal-title').text('Refund Transaction');
+            $('input[name="ref"]').val(ref);
+
+            var baseUrl = '';
+        });
+        //check if there is a submission
+        $('#refund_escrow').submit(function(e) {
+            e.preventDefault();
+            var baseUrls=$('#refund_escrow').attr('action');
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $.ajax({
+                url: baseUrls,
+                method: "POST",
+                data:$(this).serialize(),
+                dataType:"json",
+                beforeSend:function(){
+                    $('#refund_escrows').attr('disabled', true);
+                    $("#refund_escrow :input").prop("readonly", true);
+                    $("#refund_escros").LoadingOverlay("show",{
+                        text        : "updating",
+                        size        : "20"
+                    });
+                },
+                success:function(data)
+                {
+                    if(data.error)
+                    {
+                        toastr.options = {
+                            "closeButton" : true,
+                            "progressBar" : true
+                        }
+                        toastr.error(data.data.error);
+                        //return to natural stage
+                        setTimeout(function(){
+                            $('#refund_escrows').attr('disabled', false);
+                            $("#refund_escrow :input").prop("readonly", false);
+                            $("#refund_escrows").LoadingOverlay("hide");
+                        }, 3000);
+                    }
+                    if(data.success)
+                    {
+                        toastr.options = {
+                            "closeButton" : true,
+                            "progressBar" : true
+                        }
+                        toastr.success(data.message);
+                        //return to natural stage
+                        setTimeout(function(){
+                            $('#refund_escrows').attr('disabled', false);
+                            $("#refund_escrow :input").prop("readonly", false);
+                            $("#refund_escrows").LoadingOverlay("hide");
+                            location.reload();
+                        }, 3000);
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown){
+                    toastr.options = {
+                        "closeButton" : true,
+                        "progressBar" : true
+                    }
+                    toastr.error(errorThrown);
+                    //return to natural stage
+                    setTimeout(function(){
+                        $('#refund_escrow :input').attr('disabled', false);
+                        $("#refund_escrows").LoadingOverlay("hide");
+                    }, 3000);
+                }
+
+            });
+        });
+    }
     //init
     return {
         init:function (){
@@ -593,6 +833,9 @@ var EscrowRequests = function (){
             fetchStates();
             fetchCity();
             fetchLogistcis();
+            cancelEscrow();
+            completeEscrow();
+            refundEscrow();
         }
     };
 }();
