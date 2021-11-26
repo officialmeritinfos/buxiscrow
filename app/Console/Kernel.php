@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
         Commands\UpdateAccountFunding::class,
         Commands\UpdateTransfer::class,
         Commands\EscrowExpired::class,
+        Commands\UpdateMerchantPayout::class,
     ];
 
     /**
@@ -34,6 +35,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('update:accountFunding')->everyMinute();
         $schedule->command('update:transfer')->everyMinute();
         $schedule->command('escrow:expired')->everyMinute();
+        $schedule->command('update:merchantPayout')->everyMinute();
 
     }
 

@@ -20,3 +20,121 @@
         <div></div>
     </div>
 </div>
+
+<!-- Withdraw Referral -->
+<div class="modal" id="withdraw_ref">
+    <div class="modal-dialog modal-dialog-centered text-center " role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h1 class="modal-title">Withdraw Your Referral Balance</h1>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body text-left p-4" >
+                <form method="POST" action="" id="convert_ref">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <label class="form-label">Amount <span class="text-red">*</span></label>
+                                <input type="text" class="form-control form-control-lg " placeholder="Amount"
+                                       name="amount">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <button type="submit" class="btn  btn-md btn-orange" id="convert_referral">
+                                    <i class="fa fa-recycle"></i> Convert</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div></div>
+    </div>
+</div>
+
+<!-- Convert To NGn -->
+<div class="modal" id="convert_balance">
+    <div class="modal-dialog modal-dialog-centered text-center " role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h1 class="modal-title">Convert Your Referral Balance</h1>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body text-left p-4" >
+                <form method="POST" action="" id="convert_to_ngn">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <label class="form-label">Amount <span class="text-red">*</span></label>
+                                <input type="text" class="form-control form-control-lg " placeholder="Amount"
+                                       name="amount">
+                                <span class="text-orange">1 <span id="curr"></span> = <span id="rate"></span> NGN</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center" style="display: none;">
+                            <div class="form-group">
+                                <label class="form-label">Currency <span class="text-red">*</span></label>
+                                <input type="text" class="form-control form-control-lg " placeholder="Currency"
+                                       name="currency">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <button type="submit" class="btn  btn-md btn-orange" id="convert_currency">
+                                    <i class="fa fa-recycle"></i> Convert</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div></div>
+    </div>
+</div>
+
+<!-- Convert Referral Balance with specific currency -->
+<div class="modal" id="convert_referral_spcific">
+    <div class="modal-dialog modal-dialog-centered text-center " role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h1 class="modal-title">Convert Your Referral Balance</h1>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body text-left p-4" >
+                <form method="POST" action="" id="convert_referral_specific">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <label class="form-label">Amount <span class="text-red">*</span></label>
+                                <input type="text" class="form-control form-control-lg " placeholder="Amount"
+                                       name="amount">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center" style="display: none;">
+                            <div class="form-group">
+                                <label class="form-label">Currency <span class="text-red">*</span></label>
+                                <input type="text" class="form-control form-control-lg " placeholder="Currency"
+                                       name="currency">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <button type="submit" class="btn  btn-md btn-orange" id="convert_ref_specific">
+                                    <i class="fa fa-recycle"></i> Convert</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div></div>
+    </div>
+</div>
+

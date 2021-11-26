@@ -1,6 +1,25 @@
 <?php
 
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Web\AuthController;
+use App\Http\Controllers\Web\LoginController;
+use App\Http\Controllers\Web\Merchant\AccountWallet;
+use App\Http\Controllers\Web\Merchant\Beneficiary;
+use App\Http\Controllers\Web\Merchant\Business;
+use App\Http\Controllers\Web\Merchant\Dashboard;
+use App\Http\Controllers\Web\Merchant\Escrow;
+use App\Http\Controllers\Web\Merchant\Logistics;
+use App\Http\Controllers\Web\Merchant\Payouts;
+use App\Http\Controllers\Web\Merchant\Profile;
+use App\Http\Controllers\Web\Merchant\Settings;
+use App\Http\Controllers\Web\RegisterController;
+use App\Http\Controllers\Web\ResetController;
+use App\Http\Controllers\Web\User\Countries;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Web\Merchant\Activities;
+use App\Http\Controllers\Web\Merchant\Customers;
+use App\Http\Controllers\Web\Merchant\Referral;
+use App\Http\Controllers\Web\Merchant\Transactions;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,23 +34,23 @@ use Illuminate\Support\Facades\Route;
 /**
  * Home Page and Registration Url
  */
-Route::get('/',[\App\Http\Controllers\HomeController::class,'index'])->name('home');
-Route::get('index',[\App\Http\Controllers\HomeController::class,'index'])->name('home');
-Route::get('register',[\App\Http\Controllers\Web\RegisterController::class,'index'])->name('register_page');
-Route::get('login',[\App\Http\Controllers\Web\LoginController::class,'index'])->name('login');;
-Route::get('email_verify',[\App\Http\Controllers\Web\RegisterController::class,'emailVerify'])->name('email_verify');
-Route::get('twoway',[\App\Http\Controllers\Web\LoginController::class,'twoFactor'])->name('two_factor');;
-Route::get('recoverpassword',[\App\Http\Controllers\Web\ResetController::class,'index'])->name('recover_password');;
-Route::get('confirm_reset',[\App\Http\Controllers\Web\ResetController::class,'confirmReset'])->name('confirm_password_reset');;
-Route::get('reset',[\App\Http\Controllers\Web\ResetController::class,'resetPassword'])->name('reset_password');
+Route::get('/',[HomeController::class,'index'])->name('home');
+Route::get('index',[HomeController::class,'index'])->name('home');
+Route::get('register',[RegisterController::class,'index'])->name('register_page');
+Route::get('login',[LoginController::class,'index'])->name('login');;
+Route::get('email_verify',[RegisterController::class,'emailVerify'])->name('email_verify');
+Route::get('twoway',[LoginController::class,'twoFactor'])->name('two_factor');;
+Route::get('recoverpassword',[ResetController::class,'index'])->name('recover_password');;
+Route::get('confirm_reset',[ResetController::class,'confirmReset'])->name('confirm_password_reset');;
+Route::get('reset',[ResetController::class,'resetPassword'])->name('reset_password');
 
-Route::post('login',[\App\Http\Controllers\Web\AuthController::class,'signin']);
-Route::post('twoway',[\App\Http\Controllers\Web\AuthController::class,'twoWay']);
+Route::post('login',[AuthController::class,'signin']);
+Route::post('twoway',[AuthController::class,'twoWay']);
 
-Route::post('get-country',[\App\Http\Controllers\Web\User\Countries::class,'returnCountries']);
-Route::post('get-country-state/{country}',[\App\Http\Controllers\Web\User\Countries::class,'getCountryStates']);
-Route::post('get-state-city/{state}',[\App\Http\Controllers\Web\User\Countries::class,'getStateCities']);
-Route::get('get-logistics/{country}/{state}/{city}',[\App\Http\Controllers\Web\Merchant\Logistics::class,'getDeliverySerices']);
+Route::post('get-country',[Countries::class,'returnCountries']);
+Route::post('get-country-state/{country}',[Countries::class,'getCountryStates']);
+Route::post('get-state-city/{state}',[Countries::class,'getStateCities']);
+Route::get('get-logistics/{country}/{state}/{city}',[Logistics::class,'getDeliverySerices']);
 
 Route::middleware('auth')->group( function () {
     Route::middleware(['isUser'])->prefix('account')->group(function (){
@@ -83,40 +102,67 @@ Route::middleware('auth')->group( function () {
         Route::get('transfers/{ref}/details',[\App\Http\Controllers\Web\User\Payouts::class,'payoutDetails'])
             ->where('ref','[A-Za-z0-9_]+');
         //LOGOUT Route
-        Route::get('logout',[\App\Http\Controllers\Web\AuthController::class,'Logout']);
+        Route::get('logout',[AuthController::class,'Logout']);
     });
     Route::middleware(['isVendor'])->prefix('merchant')->group(function (){
-        Route::get('dashboard',[\App\Http\Controllers\Web\Merchant\Dashboard::class,'index']);
-        Route::post('dashboard/set_pin',[\App\Http\Controllers\Web\Merchant\Dashboard::class,'setPin']);
+        Route::get('dashboard',[Dashboard::class,'index']);
+        Route::post('dashboard/set_pin',[Dashboard::class,'setPin']);
         /*======================= BUSINESS ROUTE ==========================================*/
-        Route::get('businesses',[\App\Http\Controllers\Web\Merchant\Business::class,'index']);
-        Route::get('business/create-business',[\App\Http\Controllers\Web\Merchant\Business::class,'createBusiness']);
-        Route::get('business/get_category_subcategory/{id}',[\App\Http\Controllers\Web\Merchant\Business::class,'getSubcategoryOfCategory']);
-        Route::post('add-business',[\App\Http\Controllers\Web\Merchant\Business::class,'doCreation']);
-        Route::post('remove-business',[\App\Http\Controllers\Web\Merchant\Business::class,'doRemove']);
-        Route::get('business/{ref}',[\App\Http\Controllers\Web\Merchant\Business::class,'businessDetail']);
-        Route::post('business/logo_change/{ref}',[\App\Http\Controllers\Web\Merchant\Business::class,'updateLogo']);
+        Route::get('businesses',[Business::class,'index']);
+        Route::get('business/create-business',[Business::class,'createBusiness']);
+        Route::get('business/get_category_subcategory/{id}',[Business::class,'getSubcategoryOfCategory']);
+        Route::post('add-business',[Business::class,'doCreation']);
+        Route::post('remove-business',[Business::class,'doRemove']);
+        Route::get('business/{ref}',[Business::class,'businessDetail']);
+        Route::post('business/logo_change/{ref}',[Business::class,'updateLogo']);
         /*======================= ESCROW ROUTE ==========================================*/
-        Route::get('escrows',[\App\Http\Controllers\Web\Merchant\Escrow::class,'index']);
-        Route::get('new_escrow',[\App\Http\Controllers\Web\Merchant\Escrow::class,'createEscrow']);
-        Route::get('escrows/get_currency_charge/{currency}',[\App\Http\Controllers\Web\Merchant\Escrow::class,'getCurrencyChargeInternal']);
-        Route::post('add-escrow',[\App\Http\Controllers\Web\Merchant\Escrow::class,'doCreation']);
-        Route::get('escrows/{ref}/details',[\App\Http\Controllers\Web\Merchant\Escrow::class,'details']);
-        Route::get('escrows/notify_payer_pending_escrow_payment/{ref}',[\App\Http\Controllers\Web\Merchant\Escrow::class,'notifyPayerAboutPendingPayments']);
-        Route::post('add-escrow-delivery-service',[\App\Http\Controllers\Web\Merchant\Escrow::class, 'doLogistics']);
-        Route::post('cancel-escrow',[\App\Http\Controllers\Web\Merchant\Escrow::class, 'doCancel']);
-        Route::post('complete-escrow',[\App\Http\Controllers\Web\Merchant\Escrow::class, 'doComplete']);
-        Route::post('refund-escrow',[\App\Http\Controllers\Web\Merchant\Escrow::class, 'doCancel']);
+        Route::get('escrows',[Escrow::class,'index']);
+        Route::get('new_escrow',[Escrow::class,'createEscrow']);
+        Route::get('escrows/get_currency_charge/{currency}',[Escrow::class,'getCurrencyChargeInternal']);
+        Route::post('add-escrow',[Escrow::class,'doCreation']);
+        Route::get('escrows/{ref}/details',[Escrow::class,'details']);
+        Route::get('escrows/notify_payer_pending_escrow_payment/{ref}',[Escrow::class,'notifyPayerAboutPendingPayments']);
+        Route::post('add-escrow-delivery-service',[Escrow::class, 'doLogistics']);
+        Route::post('cancel-escrow',[Escrow::class, 'doCancel']);
+        Route::post('complete-escrow',[Escrow::class, 'doComplete']);
+        Route::post('refund-escrow',[Escrow::class, 'doCancel']);
         /*======================= REFERRAL ROUTE ==========================================*/
-        Route::get('/referrals',['App\Http\Controllers\Web\Merchant\Referral','index']);
-        Route::get('/referrals/earnings',['App\Http\Controllers\Web\Merchant\Referral','earnings']);
+        Route::get('/referrals',[Referral::class,'index']);
+        Route::get('/referrals/earnings',[Referral::class,'earnings']);
         /*======================= ACTIVITY ROUTE ==========================================*/
-        Route::get('/activities',['App\Http\Controllers\Web\Merchant\Activities','index']);
-        Route::get('/logins',['App\Http\Controllers\Web\Merchant\Activities','logins']);
+        Route::get('/activities',[Activities::class,'index']);
+        Route::get('/logins',[Activities::class,'logins']);
         /*======================= TRANSACTIONS ROUTE ==========================================*/
-        Route::get('/transactions',['App\Http\Controllers\Web\Merchant\Transactions','index']);
-        Route::get('/logins',['App\Http\Controllers\Web\Merchant\Transactions','details']);
+        Route::get('/transactions',[Transactions::class,'index']);
+        Route::get('/transactions/{ref}/details',[Transactions::class,'details']);
+        /*======================= CUSTOMERS ROUTE ==========================================*/
+        Route::get('/customers',[Customers::class,'index']);
+        Route::get('/customers/{id}/details',[Customers::class,'details']);
+        /*======================= BENEFICIARY ROUTE ==========================================*/
+        Route::get('beneficiary',[Beneficiary::class,'index']);
+        Route::post('add-beneficiary',[Beneficiary::class,'addBeneficiary']);
+        Route::post('remove-beneficiary/{id}',[Beneficiary::class,'removeBeneficiary']);
+        /*=================== PAYOUT ROUTES =========================*/
+        Route::get('transfers',[Payouts::class,'index']);
+        Route::post('new_transfer',[Payouts::class,'authenticateTransfer']);
+        Route::get('get_beneficiary/{id}',[Payouts::class,'getBeneficiaryId']);
+        Route::get('transfers/{ref}/details',[Payouts::class,'payoutDetails'])
+            ->where('ref','[A-Za-z0-9_]+');
+        /*======================= PROFILE ROUTE ==========================================*/
+        Route::get('/profile',[Profile::class,'index']);
+        Route::get('/account_wallet',[AccountWallet::class,'index']);
+        /*======================= ACCOUNT SETTING ROUTE ==========================================*/
+        Route::get('/settings',[Settings::class,'index']);
+        Route::post('settings/profile_change',[Settings::class,'updateProfilePic']);
+        Route::post('settings/change_password',[Settings::class,'updatePassword']);
+        Route::post('settings/update_profile',[Settings::class,'updateProfile']);
+        Route::post('settings/change_account',[Settings::class,'switchAccount']);
+        /*======================= ACCOUNT WALLET ROUTE ==========================================*/
+        Route::post('dashboard/convert_referral',[Dashboard::class,'convertReferral']);
+        Route::post('dashboard/convert_specific_referral',[Dashboard::class,'convertSpecificReferral']);
+        Route::post('dashboard/convert_to_ngn',[Dashboard::class,'convertToNGN']);
+        Route::get('dashboard/get_specific_currency/{currency}',[Dashboard::class,'getSpecificCurrencyData']);
         //LOGOUT Route
-        Route::get('logout',[\App\Http\Controllers\Web\AuthController::class,'Logout']);
+        Route::get('logout',[AuthController::class,'Logout']);
     });
 });

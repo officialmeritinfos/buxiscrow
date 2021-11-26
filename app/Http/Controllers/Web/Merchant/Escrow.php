@@ -7,6 +7,7 @@ use App\Events\EscrowNotification;
 use App\Events\SendNotification;
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Controllers\Controller;
+use App\Models\BusinessCustomers;
 use App\Models\Businesses;
 use App\Models\Cities;
 use App\Models\Country;
@@ -110,6 +111,20 @@ class Escrow extends BaseController
             is a cryptocurrency based business.'],
                 '422', 'Failed');
         }
+        $customer = BusinessCustomers::where('email',$payer->email)->where('merchant',$user->id)
+            ->where('business',$business->id) ->first();
+        if (!empty($customer)){
+            $dataCustomer = ['numberTransaction'=>$customer->numberTransaction+1];
+            $shouldUpdate = 1;
+        }else {
+            $dataCustomer = [
+                'name' => $payer->name, 'email' => $payer->email, 'phone' => $payer->phoneCode . $payer->phone,
+                'country' => $payer->country, 'numberTransaction'=>1,'isOnSystem'=>1,'merchant'=>$user->id,
+                'business'=> $business->id
+            ];
+            $shouldUpdate = 2;
+        }
+        //others
         $percentCharge = $currency->internalCharge;
         $minCharge = $currency->minCharge;
         $maxCharge = $currency->maxCharge;
@@ -159,6 +174,7 @@ class Escrow extends BaseController
         ];
         $add = Escrows::create($dataEscrow);
         if (!empty($add)){
+            ($shouldUpdate ==1 )? BusinessCustomers::where('id',$customer->id)->update($dataCustomer):BusinessCustomers::create($dataCustomer);
             //Send Notification to Payer
             $detailsToPayer = 'A new escrow with reference <b>'.$reference.'</b> has been created for you by
             <b>'.$business->name.'.</b> Login to your account to view more details and proceed to making payments.' ;

@@ -303,7 +303,7 @@
     </div>
 </div>
 
-<!-- Convert Referral Balance with spcific currency -->
+<!-- Convert Referral Balance with specific currency -->
 <div class="modal" id="convert_referral_spcific">
     <div class="modal-dialog modal-dialog-centered text-center " role="document">
         <div class="modal-content">

@@ -69,4 +69,117 @@ class Dashboard extends BaseController
         }
         return $this->sendError('Invalid Request',['error'=>'Invalid account password'],'422','Validation Failed');
     }
+    public function convertReferral(Request $request){
+        $user=Auth::user();
+        $validator = Validator::make($request->all(),
+            ['amount' => ['bail','required','numeric']],
+            ['required'  =>':attribute is required'],
+            ['amount'   =>'Withdrawal Amount']
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return $this->sendError('Error validation',['error'=>$validator->errors()->all()],'422','Validation Failed');
+        }
+        $refBalance = MerchantBalances::where('merchant',$user->id)->where('currency',$user->majorCurrency)->first();
+        return $this->checkReferralBalanceForConversion($request, $refBalance, $user);
+    }
+    public function convertSpecificReferral(Request $request){
+        $user=Auth::user();
+        $validator = Validator::make($request->all(),
+            ['amount' => ['bail','required','numeric'],'currency' => ['bail','required','alpha']],
+            ['required'  =>':attribute is required'],
+            ['amount'   =>'Withdrawal Amount']
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return $this->sendError('Error validation',['error'=>$validator->errors()->all()],'422','Validation Failed');
+        }
+        $refBalance = MerchantBalances::where('merchant',$user->id)->where('currency',$request->input('currency'))->first();
+        return $this->checkReferralBalanceForConversion($request, $refBalance, $user);
+    }
+
+    /**
+     * @param Request $request
+     * @param $refBalance
+     * @param \Illuminate\Contracts\Auth\Authenticatable|null $user
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkReferralBalanceForConversion(Request $request, $refBalance, ?\Illuminate\Contracts\Auth\Authenticatable $user): \Illuminate\Http\JsonResponse
+    {
+        if ($request->amount > $refBalance->referralBalance) {
+            return $this->sendError('Insufficient Fund', ['error' => 'Insufficient Fund in ' . $refBalance->currency . ' Referral Account'], '422', 'Validation Failed');
+        }
+        $refBal = $refBalance->referralBalance - $request->amount;
+        $newBal = $refBalance->availableBalance + $request->amount;
+        $balData = [
+            'availableBalance' => $newBal,
+            'referralbalance' => $refBal
+        ];
+        $updateBalance = MerchantBalances::where('id', $refBalance->id)->update($balData);
+        if (!empty($updateBalance)) {
+            $details = 'Your ' . $refBalance->currency . ' Referral Balance was debited of ' . $refBalance->currency . '
+                        ' . $request->amount . ' at ' . date('d-m-Y h:i:s a') . ' and converted to corresponding available
+                        balance';
+            $dataActivity = ['merchant' => $user->id, 'activity' => 'Referral Balance Debit', 'details' => $details, 'agent_ip' => $request->ip()];
+            event(new AccountActivity($user, $dataActivity));
+            $success['convert'] = true;
+            return $this->sendResponse($success, 'conversion successful');
+        }
+        return $this->sendError('Error Converting', ['error' => 'There was an Error converting'], '4011', 'Conversion Failed');
+    }
+    public function convertToNGN(Request $request){
+        $user=Auth::user();
+        $validator = Validator::make($request->all(),
+            ['amount' => ['bail','required','numeric'],'currency' => ['bail','required','alpha']],
+            ['required'  =>':attribute is required'],
+            ['amount'   =>'Withdrawal Amount']
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return $this->sendError('Error validation',['error'=>$validator->errors()->all()],'422','Validation Failed');
+        }
+        $userBalance = MerchantBalances::where('merchant',$user->id)->where('currency',$request->input('currency'))->first();
+        $acceptedCurrency = CurrencyAccepted::where('code',strtoupper($request->input('currency')))->where('status',1)->first();
+        $userNgnBalance = MerchantBalances::where('merchant',$user->id)->where('currency','NGN')->first();
+        if ($request->input('amount') > $userBalance->availableBalance) {
+            return $this->sendError('Insufficient Fund', ['error' => 'Insufficient Fund in ' . $userBalance->currency . ' Available Account'],
+                '422', 'Validation Failed');
+        }
+        $rateNGN = $acceptedCurrency->rateNGN;
+        $newAmount = $rateNGN*$request->input('amount');
+        $newBal = $userNgnBalance->availableBalance + $newAmount;
+        $newCurrBalance = $userBalance->availableBalance - $request->input('amount');
+        if ($userNgnBalance->AccountLimit > $newBal){
+            return $this->sendError('Error converting',['error'=>'Conversion failed. Amount above account Limit'],
+                '422','Conversion Failed');
+        }
+        $balData = [
+            'availableBalance' => $newBal,
+        ];
+        $convertedBalanceData = [
+            'availableBalance' => $newCurrBalance,
+        ];
+        $updateBalance = MerchantBalances::where('id', $userNgnBalance->id)->update($balData);
+        if (!empty($updateBalance)){
+            $updateConvertedBalance = MerchantBalances::where('id', $userBalance->id)->update($convertedBalanceData);
+            $details = 'Your ' . $userBalance->currency . ' Available Balance was debited of ' . $userBalance->currency . '
+                        ' . number_format($request->amount,2) . ' at ' . date('d-m-Y h:i:s a') . ' and
+                        converted to NGN available balance';
+            $dataActivity = ['merchant' => $user->id, 'activity' => 'Balance Conversion', 'details' => $details, 'agent_ip' => $request->ip()];
+            event(new AccountActivity($user, $dataActivity));
+            $success['convert'] = true;
+            return $this->sendResponse($success, 'conversion successful');
+        }
+        return $this->sendError('Error Converting', ['error' => 'There was an Error converting your '.$userBalance->currency.' balance to NGN'],
+            '4011', 'Conversion Failed');
+    }
+    public function getSpecificCurrencyData($currency){
+        $currencyData = CurrencyAccepted::where('code',$currency)->first();
+        if (!empty($currencyData)){
+            $success['currency']=$currencyData->code;
+            $success['name']=$currencyData->currency;
+            $success['rateUsd']=$currencyData->rateUsd;
+            $success['rateNGN']=$currencyData->rateNGN;
+            return $this->sendResponse($success, 'fetched');
+        }
+        return $this->sendError('Error', ['error' => 'Unsupported currency queried'],
+            '4011', 'Fetch Failed');
+    }
 }
