@@ -7,8 +7,10 @@ use App\Http\Controllers\Web\Merchant\AccountWallet;
 use App\Http\Controllers\Web\Merchant\Beneficiary;
 use App\Http\Controllers\Web\Merchant\Business;
 use App\Http\Controllers\Web\Merchant\Dashboard;
+use App\Http\Controllers\Web\Merchant\Documents;
 use App\Http\Controllers\Web\Merchant\Escrow;
 use App\Http\Controllers\Web\Merchant\Logistics;
+use App\Http\Controllers\Web\Merchant\MoreActions;
 use App\Http\Controllers\Web\Merchant\Payouts;
 use App\Http\Controllers\Web\Merchant\Profile;
 use App\Http\Controllers\Web\Merchant\Settings;
@@ -95,6 +97,9 @@ Route::middleware('auth')->group( function () {
         Route::get('verify_transaction/{id}',[\App\Http\Controllers\Web\User\Dashboard::class,'verifyTransaction']);
         /*=================== ESCROW ROUTES =========================*/
         Route::get('escrows',[\App\Http\Controllers\Web\User\Escrows::class,'index']);
+        Route::get('escrows/{ref}/details',[\App\Http\Controllers\Web\User\Escrows::class,'details']);
+        Route::get('escrows/pay_for_escrow/{ref}',[\App\Http\Controllers\Web\User\Escrows::class,'doPayment']);
+        Route::post('complete-escrow',[\App\Http\Controllers\Web\User\Escrows::class,'doComplete']);
         /*=================== PAYOUT ROUTES =========================*/
         Route::get('transfers',[\App\Http\Controllers\Web\User\Payouts::class,'index']);
         Route::post('new_transfer',[\App\Http\Controllers\Web\User\Payouts::class,'authenticateTransfer']);
@@ -125,7 +130,7 @@ Route::middleware('auth')->group( function () {
         Route::post('add-escrow-delivery-service',[Escrow::class, 'doLogistics']);
         Route::post('cancel-escrow',[Escrow::class, 'doCancel']);
         Route::post('complete-escrow',[Escrow::class, 'doComplete']);
-        Route::post('refund-escrow',[Escrow::class, 'doCancel']);
+        Route::post('refund-escrow',[Escrow::class, 'doRefund']);
         /*======================= REFERRAL ROUTE ==========================================*/
         Route::get('/referrals',[Referral::class,'index']);
         Route::get('/referrals/earnings',[Referral::class,'earnings']);
@@ -162,6 +167,14 @@ Route::middleware('auth')->group( function () {
         Route::post('dashboard/convert_specific_referral',[Dashboard::class,'convertSpecificReferral']);
         Route::post('dashboard/convert_to_ngn',[Dashboard::class,'convertToNGN']);
         Route::get('dashboard/get_specific_currency/{currency}',[Dashboard::class,'getSpecificCurrencyData']);
+        /*======================= MERCHANT VERIFICATION =========================================*/
+        Route::get('more',[MoreActions::class,'index']);
+        Route::get('documents/verify',[Documents::class,'index']);
+        Route::get('documents/get-document-type-id/{id}',[Documents::class,'getDocumentTypeId'])
+            ->whereNumber('id');
+        Route::post('documents/verify',[Documents::class,'verifyAccount']);
+        Route::get('documents/documents',[MoreActions::class,'index']);
+        Route::get('documents/error',[MoreActions::class,'index']);
         //LOGOUT Route
         Route::get('logout',[AuthController::class,'Logout']);
     });

@@ -38,7 +38,7 @@
                             <div class="form-group">
                                 <label class="form-label">Amount <span class="text-red">*</span></label>
                                 <input type="text" class="form-control form-control-lg " placeholder="Amount"
-                                       name="amount">
+                                       name="amount"/>
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-12 text-center">

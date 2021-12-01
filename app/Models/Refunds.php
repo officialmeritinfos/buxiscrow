@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Refunds extends Model
 {
     use HasFactory;
+    protected $table='refunds';
+    protected $guarded=[];
 }

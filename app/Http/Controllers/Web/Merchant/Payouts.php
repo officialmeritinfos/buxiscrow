@@ -168,7 +168,7 @@ class Payouts extends BaseController
                 'status'=>2,'transactionType'=>2
             ];
             $dataWithdrawal = [
-                'user'=>$user->id, 'amount'=>$data->input('amount'), 'currency'=>$data->input('currency'),
+                'merchant'=>$user->id, 'amount'=>$data->input('amount'), 'currency'=>$data->input('currency'),
                 'reference'=>$reference, 'withdrawalRef'=>$reference, 'withdrawalId'=>$transfer['data']['id'],
             ];
             $dataCharge = [
@@ -180,7 +180,7 @@ class Payouts extends BaseController
             $addTransactions = Transactions::create($dataTransaction);
             if (!empty($addTransactions)){
                 transfers::create($dataWithdrawal);
-                UserBalances::where('user',$user->id)->where('id',$userBalance->id)->update($dataBalance);
+                MerchantBalances::where('merchant',$user->id)->where('id',$userBalance->id)->update($dataBalance);
                 Charges::create($dataCharge);
                 $details = 'Your ' . $userBalance->currency . ' Account Balance has been debited of <b>' . $userBalance->currency.'
                              ' . number_format($data->input('amount'),2) . '</b>

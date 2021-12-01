@@ -116,6 +116,7 @@
             <script src="{{ asset('dashboard/user/profile.js')}}"></script>
             <script src="{{ asset('dashboard/user/verification.js')}}"></script>
             <script src="{{ asset('dashboard/user/transfer.js')}}"></script>
+            <script src="{{ asset('dashboard/user/escrow.js')}}"></script>
             <script src="{{ asset('dashboard/public/assets/plugins/datatable/js/jquery.dataTables.js')}}"></script>
             <script src="{{ asset('dashboard/public/assets/plugins/datatable/js/dataTables.bootstrap4.js')}}"></script>
             <script src="{{ asset('dashboard/public/assets/plugins/datatable/js/dataTables.buttons.min.js')}}"></script>

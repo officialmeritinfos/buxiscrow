@@ -62,6 +62,9 @@
                                                 @case(3)
                                                 <span class="badge badge-danger">Failed</span>
                                                 @break
+                                                @case(4)
+                                                <span class="badge badge-info">Paid</span>
+                                                @break
                                             @endswitch
                                         </td>
                                         <td>{{$escrow->created_at}}</td>

@@ -59,7 +59,6 @@ class SettleAccountFunding extends Command
                 if ($userBalance->TransactionLimit >= $transaction->amount){
                     if ($userBalance->AccountLimit >= $transaction->amount){
                         $newFrozenBalance = $userBalance->frozenBalance - $transaction->amountCredit;
-                        Log::alert($newFrozenBalance);
                         $newBalance = $userBalance->availableBalance + $transaction->amountCredit;
                         $dataBalance = ['availableBalance'=>$newBalance,'frozenBalance'=>$newFrozenBalance];
                         $dataAccountFunding = ['settled'=>1,'timeSettled'=>time()];

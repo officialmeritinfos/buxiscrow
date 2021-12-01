@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class EscrowApprovals extends Model
 {
     use HasFactory;
+    protected $guarded=[];
 }

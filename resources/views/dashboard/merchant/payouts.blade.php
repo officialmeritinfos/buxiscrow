@@ -69,7 +69,7 @@
                                         </td>
                                         <td>{{$transfer->created_at}}</td>
                                         <td>
-                                            <a href="{{url('merchant /transfers/'.$transfer->reference.'/details')}}"
+                                            <a href="{{url('merchant/transfers/'.$transfer->reference.'/details')}}"
                                                class="btn btn-outline-warning"><i class="fa fa-eye"></i> </a>
                                         </td>
                                     </tr>

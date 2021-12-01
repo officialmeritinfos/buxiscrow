@@ -19,6 +19,10 @@ class Kernel extends ConsoleKernel
         Commands\UpdateTransfer::class,
         Commands\EscrowExpired::class,
         Commands\UpdateMerchantPayout::class,
+        Commands\RefundEscrow::class,
+        Commands\CreditMerchant::class,
+        Commands\DeliveryExpired::class,
+        Commands\InspectionPeriodExpired::class,
     ];
 
     /**
@@ -30,12 +34,16 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('update:banks')->everyMinute();
-        $schedule->command('settle:accountFunding')->everyMinute();
-        $schedule->command('update:accountFunding')->everyMinute();
-        $schedule->command('update:transfer')->everyMinute();
-        $schedule->command('escrow:expired')->everyMinute();
-        $schedule->command('update:merchantPayout')->everyMinute();
+        $schedule->command('update:banks')->everyMinute()->withoutOverlapping();
+        $schedule->command('settle:accountFunding')->everyMinute()->withoutOverlapping();
+        $schedule->command('update:accountFunding')->everyMinute()->withoutOverlapping();
+        $schedule->command('update:transfer')->everyMinute()->withoutOverlapping();
+        $schedule->command('escrow:expired')->everyMinute()->withoutOverlapping();
+        $schedule->command('update:merchantPayout')->everyMinute()->withoutOverlapping();
+        $schedule->command('refund:escrow')->everyMinute()->withoutOverlapping();
+        $schedule->command('credit:merchant')->everyMinute()->withoutOverlapping();
+        $schedule->command('delivery:expired')->everyMinute()->withoutOverlapping();
+        $schedule->command('inspectionPeriod:expired')->everyMinute()->withoutOverlapping();
 
     }
 

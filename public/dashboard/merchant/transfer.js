@@ -167,7 +167,7 @@ var transferRequest = function () {
                     setTimeout(function(){
                         $("#initiate-transfer").LoadingOverlay("hide");
                         $("#initiate-transfer :input").prop("readonly", false);
-                        location.reload();
+                        //location.reload();
                     }, 3000);
                 }
             });

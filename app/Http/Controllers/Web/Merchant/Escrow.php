@@ -219,7 +219,7 @@ class Escrow extends BaseController
         $dataView=[
             'web'=>$generalSettings,'pageName'=>'Escrow Details','slogan'=>'- Making safer transactions','user'=>$user,
             'escrow'=>$escrow,'business'=>$business,'payment'=>$payment,'report'=>$reports,'payer'=>$payer,'escrow_delivery'=>$escrow_delivery,
-            'logisticsLocation'=>$logisticsLocation,'logistics'=>$logisticCompany,'escrow_approvals'=>$escrow_approvals
+            'logisticsLocation'=>$logisticsLocation,'logistics'=>$logisticCompany,'approval'=>$escrow_approvals
         ];
         return view('dashboard.merchant.escrow_details',$dataView);
     }
@@ -380,7 +380,7 @@ class Escrow extends BaseController
             if ($hasPayment==1){EscrowPayments::where('id',$payments->id)->update($dataPayment);}
             //Send Notification to Payer
             $detailsToPayer = 'Your escrow with reference <b>'.$reference.'</b> which was created for you by
-            <b>'.$business->name.'</b>has been cancelled by the seller.' ;
+            <b>'.$business->name.'</b> has been cancelled by the seller.' ;
             $dataActivityUser = ['user' => $payer->id, 'activity' => 'Escrow cancellation', 'details' => $detailsToPayer,
                 'agent_ip' => $request->ip()];
             event(new AccountActivity($payer, $dataActivityUser));
@@ -388,14 +388,14 @@ class Escrow extends BaseController
 
             //Send Notification To merchant
             $detailsToMerchant = 'Escrow transaction with reference <b>'.$reference.'</b> was cancelled' ;
-            $dataActivityMerchant = ['merchant' => $user->id, 'activity' => 'Delivery Service', 'details' => $detailsToMerchant,
+            $dataActivityMerchant = ['merchant' => $user->id, 'activity' => 'Escrow Cancellation', 'details' => $detailsToMerchant,
                 'agent_ip' => $request->ip()];
             event(new AccountActivity($user, $dataActivityMerchant));
 
             $success['cancelled']=true;
             return $this->sendResponse($success, 'Transaction Cancelled');
         }
-        return $this->sendError('Creation Error',['error'=>'Error cancelling transaction'],
+        return $this->sendError('Cancellation Error',['error'=>'Error cancelling transaction'],
             '422','Update Failed');
     }
     public function doComplete(Request $request){
@@ -433,6 +433,10 @@ class Escrow extends BaseController
             return $this->sendError('Escrow Error',['error'=>'Escrow already completed'],
                 '422','Update Failed');
         }
+        if ($escrow->deadline < time()){
+            return $this->sendError('Escrow Error',['error'=>'Escrow already expired'],
+                '422','Update Failed');
+        }
         //check if the transaction has a report against it
         $escrowHasReport = EscrowReports::where('escrow_id',$escrow->id)->where('resolved','!=',1)->first();
         if (!empty($escrowHasReport)){
@@ -452,14 +456,33 @@ class Escrow extends BaseController
         $business = Businesses::where('id',$escrow->business)->first();
         //check if it has payment and queue for refund
         $payments = EscrowPayments::where('escrowId',$escrow->id)->first();
-        $dataEscrow = ['status'=>2];
+        if (empty($payments)){
+            return $this->sendError('Escrow Error',['error'=>'Payment has not been received for this transaction yet.'],
+                '422','Update Failed');
+        }
+        if ($payments->isRefunded == 1){
+            return $this->sendError('Escrow Error',['error'=>'Payment for this transaction has been refunded.'],
+                '422','Update Failed');
+        }
+        if ($payments->isQueuedForRefund == 1){
+            return $this->sendError('Escrow Error',['error'=>'Payment for this transaction has been queued for a refund.'],
+                '422','Update Failed');
+        }
+        if ($payments->isSettled == 1){
+            return $this->sendError('Escrow Error',['error'=>'Payment for this transaction has been settled to your account.'],
+                '422','Update Failed');
+        }
+        $dataEscrow = ['status'=>4];
+        $dataApproval = ['approvedByMerchant'=>1,'escrowId'=>$escrow->id,'escrowRef'=>$escrow->reference,'dateApprovedByMerchant'=>time()];
 
-        $update = Escrows::where('id',$escrow->id)->update($dataEscrow);
-        if (!empty($update)){
+        $addApproval = EscrowApprovals::create($dataApproval);
+        if (!empty($addApproval)){
+            $update = Escrows::where('id',$escrow->id)->update($dataEscrow);
+
             if ($hasDelivery==1){EscrowDeliveries::where('escrowId',$escrow->id)->update($dataDelivery);}
             //Send Notification to Payer
             $detailsToPayer = 'Your escrow with reference <b>'.$reference.'</b> which was created for you by
-            <b>'.$business->name.'</b>has been marked as <b>delivered</b> by the seller. We believe you have received the goods in good
+            <b>'.$business->name.'</b> has been marked as <b>delivered</b> by the seller. We believe you have received the goods in good
             condition. If this is not the case, you have till <b>'.date('d-m-Y h:i:s a', $escrow->inspectionPeriod).'</b> to either
             approve this transaction or report it to us. <br> <b>Note:</b> If after the above date you did not carry out any activity, we will
             release the money to the seller, and this is non-refundable.' ;
@@ -532,7 +555,7 @@ class Escrow extends BaseController
             return $this->sendError('Escrow Error',['error'=>'There is no corresponding payment received for this transaction yet'],
                 '422','Update Failed');
         }
-        $dataEscrow = ['status'=>2];
+        $dataEscrow = ['status'=>3];
         $dataPayment = ['isQueuedForRefund'=>1,'paymentStatus'=>5];
         $update = Escrows::where('id',$escrow->id)->update($dataEscrow);
         if (!empty($update)){
@@ -540,7 +563,7 @@ class Escrow extends BaseController
             if ($hasDelivery==1){EscrowDeliveries::where('escrowId',$escrow->id)->update($dataDelivery);}
             //Send Notification to Payer
             $detailsToPayer = 'Your escrow with reference <b>'.$reference.'</b> which was created for you by
-            <b>'.$business->name.'</b>has been queued for refund. ' ;
+            <b>'.$business->name.'</b> has been queued for refund. ' ;
             $dataActivityUser = ['user' => $payer->id, 'activity' => 'Escrow Refund', 'details' => $detailsToPayer,
                 'agent_ip' => $request->ip()];
             event(new AccountActivity($payer, $dataActivityUser));
@@ -553,7 +576,7 @@ class Escrow extends BaseController
             event(new AccountActivity($user, $dataActivityMerchant));
 
             $success['cancelled']=true;
-            return $this->sendResponse($success, 'Transaction Marked as completed');
+            return $this->sendResponse($success, 'Transaction Refunded');
         }
         return $this->sendError('Creation Error',['error'=>'Error completing transaction'],
             '422','Update Failed');

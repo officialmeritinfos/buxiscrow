@@ -768,7 +768,7 @@ var EscrowRequests = function (){
                 beforeSend:function(){
                     $('#refund_escrows').attr('disabled', true);
                     $("#refund_escrow :input").prop("readonly", true);
-                    $("#refund_escros").LoadingOverlay("show",{
+                    $("#refund_escrows").LoadingOverlay("show",{
                         text        : "updating",
                         size        : "20"
                     });

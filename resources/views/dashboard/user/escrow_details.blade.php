@@ -1,4 +1,4 @@
-@include('dashboard.merchant.templates.header')
+@include('dashboard.user.templates.header')
 <!--Page header-->
 <div class="page-header">
     <div class="page-leftheader">
@@ -6,7 +6,7 @@
     </div>
     <div class="page-rightheader ml-auto d-lg-flex d-none">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{url('merchant/dashboard')}}" class="d-flex">
+            <li class="breadcrumb-item"><a href="{{url('account/dashboard')}}" class="d-flex">
                     <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
                         <path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3zm5 15h-2v-6H9v6H7v-7.81l5-4.5 5 4.5V18z"/>
                         <path d="M7 10.19V18h2v-6h6v6h2v-7.81l-5-4.5z" opacity=".3"/>
@@ -56,15 +56,15 @@
                             </p>
                             <h6 class="pro-user-desc font-weight-bolder">Who Pays Charge</h6>
                             <p>
-                               @switch($escrow->whoPaysCharge)
-                                   @case(1)
-                                        <span class="badge badge-info">Merchant</span>
+                                @switch($escrow->whoPaysCharge)
+                                    @case(1)
+                                    <span class="badge badge-info">Merchant</span>
                                     @break
-                                   @case(2)
-                                        <span class="badge badge-primary">Buyer</span>
+                                    @case(2)
+                                    <span class="badge badge-primary">Buyer</span>
                                     @break
-                                   @default
-                                        <span class="badge badge-dark">
+                                    @default
+                                    <span class="badge badge-dark">
                                             Both ( Merchant - {{$escrow->currency}} {{number_format($escrow->chargePaidBySeller,2)}} ({{$escrow->percentChargePaidByMerchant}}%) &
                                             Buyer - {{$escrow->currency}} {{number_format($escrow->chargePaidByBuyer,2)}} ({{$escrow->percentChargePaidByUser}}%) )
                                         </span>
@@ -143,10 +143,10 @@
                                 <p>
                                     @switch($payment->paymentStatus)
                                         @case(1)
-                                            <span class="badge badge-success">Successful</span>
+                                        <span class="badge badge-success">Successful</span>
                                         @break
                                         @case(2)
-                                            <span class="badge badge-primary">Pending</span>
+                                        <span class="badge badge-primary">Pending</span>
                                         @break
                                         @case(3)
                                         <span class="badge badge-danger">Failed</span>
@@ -171,16 +171,19 @@
                         <div class="alert alert-info">
                             <strong>Pending Payment</strong>
                             <hr class="message-inner-separator">
-                            <p>
-                                No Payment has been made for this transaction. Click the link below to notify the payer
-                                about this pending payment.
-                            </p>
-                            <br>
+
                             @if($escrow->deadline > time())
-                                <button class="btn btn-outline-info" id="notify_escrow_payer_pending_payment" data-value="{{$escrow->reference}}">
-                                    Send Reminder
+                                <p>
+                                    No Payment has been made for this transaction. Click the button below to make payment.
+                                </p>
+                            <br>
+                                <button class="btn btn-outline-info" id="pay_for_escrow" data-value="{{$escrow->reference}}">
+                                    Make Payment
                                 </button>
                             @else
+                                <p>
+                                    No Payment was made for this transaction.
+                                </p>
                                 <button class="btn btn-outline-danger" >
                                     Transaction Expired
                                 </button>
@@ -205,9 +208,9 @@
                                 transaction is carried out faster than ever.
                             </p>
                             <br>
-                            <button class="btn btn-outline-primary" data-toggle="modal" data-target="#add-delivery-service"
-                            data-value="{{$escrow->reference}}">
-                                Add Delivery Service
+                            <button class="btn btn-outline-primary" data-toggle="modal" data-target="#request_delivery_service"
+                                    data-value="{{$escrow->reference}}">
+                                Ask Merchant To Add Delivery Partner
                             </button>
                         </div>
                     </div>
@@ -244,7 +247,7 @@
                                 <p>
                                     @switch($escrow_delivery->status)
                                         @case(1)
-                                            <span class="badge badge-success">Delivered</span>
+                                        <span class="badge badge-success">Delivered</span>
                                         @break
                                         @case(2)
                                         <span class="badge badge-info">Pending</span>
@@ -266,7 +269,7 @@
             <div class="card box-widget widget-user">
                 <div class="card-body text-center">
                     <div class="pro-user">
-                        <div class="alert alert-primary">
+                        <div class="alert alert-info">
                             <strong>Transaction Approvals</strong>
                             <hr class="message-inner-separator">
                             <p>
@@ -288,33 +291,33 @@
                     <div class="pro-user">
                         <div class="row text-center">
                             @if($approval->approvedByMerchant == 1)
-                            <div class="col-md-4">
-                                <h4 class="pro-user-username text-dark mb-1 badge badge-success">
-                                    Approved By Merchant
-                                </h4>
-                            </div>
+                                <div class="col-md-6">
+                                    <h4 class="pro-user-username text-dark mb-1 badge badge-success">
+                                        Approved By Merchant
+                                    </h4>
+                                </div>
                             @endif
                             @if($approval->approvedByMerchant == 1)
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <h4 class="pro-user-username text-dark mb-1 badge badge-info">
                                         {{date('d-m-Y H:i:s a',$approval->dateApprovedByMerchant)}}
                                     </h4>
                                 </div>
                             @endif
-                                @if($approval->approvedByBuyer == 1)
-                                    <div class="col-md-4">
-                                        <h4 class="pro-user-username text-dark mb-1 badge badge-success">
-                                            Approved By Buyer/Client
-                                        </h4>
-                                    </div>
-                                @endif
-                                @if($approval->approvedByBuyer == 1)
-                                    <div class="col-md-4">
-                                        <h4 class="pro-user-username text-dark mb-1 badge badge-info">
-                                            {{date('d-m-Y H:i:s a',$approval->dateApprovedByBuyer)}}
-                                        </h4>
-                                    </div>
-                                @endif
+                            @if($approval->approvedByBuyer == 1)
+                                <div class="col-md-6">
+                                    <h4 class="pro-user-username text-dark mb-1 badge badge-success">
+                                        Approved By Buyer/Client
+                                    </h4>
+                                </div>
+                            @endif
+                            @if($approval->approvedByBuyer == 1)
+                                <div class="col-md-6">
+                                    <h4 class="pro-user-username text-dark mb-1 badge badge-info">
+                                        {{date('d-m-Y H:i:s a',$approval->dateApprovedByBuyer)}}
+                                    </h4>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -332,21 +335,16 @@
                         @if(!empty($payment))
                             @if($payment->paymentStatus == 1 && $escrow->status != 3)
                                 <div class="col-md-3">
-                                    <button class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#markDelivered" data-value="{{$escrow->reference}}">
+                                    <button class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#markDelivered"
+                                            data-value="{{$escrow->reference}}" style="margin-bottom: 5px;">
                                         Mark Delivered</button>
                                 </div>
                                 <div class="col-md-3">
-                                    <button class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#refundPayment" data-value="{{$escrow->reference}}">
-                                        Refund</button>
+                                    <button class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#reportTransaction"
+                                            data-value="{{$escrow->reference}}">
+                                        Report</button>
                                 </div>
                             @endif
-                        @endif
-                        @if($escrow->status != 1 && $escrow->status != 3)
-
-                            <div class="col-md-3 mx-auto">
-                                <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#cancel_transaction" data-value="{{$escrow->reference}}">
-                                    Cancel Transaction</button>
-                            </div>
                         @endif
                     </div><br><br>
                     <div class="row">
@@ -380,5 +378,5 @@
 </div>
 </div><!-- end app-content-->
 </div>
-@include('dashboard.merchant.templates.escrow_modal')
-@include('dashboard.merchant.templates.footer')
+@include('dashboard.user.templates.escrow_modal')
+@include('dashboard.user.templates.footer')
