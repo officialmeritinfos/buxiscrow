@@ -17,6 +17,9 @@ use App\Http\Controllers\Web\Merchant\Settings;
 use App\Http\Controllers\Web\RegisterController;
 use App\Http\Controllers\Web\ResetController;
 use App\Http\Controllers\Web\User\Countries;
+use App\Http\Controllers\Web\User\Escrows;
+use App\Http\Controllers\Web\User\Merchants;
+use App\Http\Controllers\Web\User\Referrals;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\Merchant\Activities;
 use App\Http\Controllers\Web\Merchant\Customers;
@@ -77,8 +80,8 @@ Route::middleware('auth')->group( function () {
         Route::get('beneficiary',[\App\Http\Controllers\Web\User\Beneficiary::class,'index']);
         Route::post('add-beneficiary',[\App\Http\Controllers\Web\User\Beneficiary::class,'addBeneficiary']);
         Route::post('remove-beneficiary/{id}',[\App\Http\Controllers\Web\User\Beneficiary::class,'removeBeneficiary']);
-        Route::get('referrals',[\App\Http\Controllers\Web\User\Referrals::class,'index']);
-        Route::get('referrals/earnings',[\App\Http\Controllers\Web\User\Referrals::class,'earnings']);
+        Route::get('referrals',[Referrals::class,'index']);
+        Route::get('referrals/earnings',[Referrals::class,'earnings']);
         Route::get('settings',[\App\Http\Controllers\Web\User\Settings::class,'index']);
         Route::post('settings/profile_change',[\App\Http\Controllers\Web\User\Settings::class,'updateProfilePic']);
         Route::post('settings/change_password',[\App\Http\Controllers\Web\User\Settings::class,'updatePassword']);
@@ -96,16 +99,21 @@ Route::middleware('auth')->group( function () {
         Route::get('get_pubkey',[\App\Http\Controllers\Web\User\Dashboard::class,'getFlutterwavePubKey']);
         Route::get('verify_transaction/{id}',[\App\Http\Controllers\Web\User\Dashboard::class,'verifyTransaction']);
         /*=================== ESCROW ROUTES =========================*/
-        Route::get('escrows',[\App\Http\Controllers\Web\User\Escrows::class,'index']);
-        Route::get('escrows/{ref}/details',[\App\Http\Controllers\Web\User\Escrows::class,'details']);
-        Route::get('escrows/pay_for_escrow/{ref}',[\App\Http\Controllers\Web\User\Escrows::class,'doPayment']);
-        Route::post('complete-escrow',[\App\Http\Controllers\Web\User\Escrows::class,'doComplete']);
+        Route::get('escrows',[Escrows::class,'index']);
+        Route::get('escrows/{ref}/details',[Escrows::class,'details']);
+        Route::get('escrows/pay_for_escrow/{ref}',[Escrows::class,'doPayment']);
+        Route::post('complete-escrow',[Escrows::class,'doComplete']);
         /*=================== PAYOUT ROUTES =========================*/
         Route::get('transfers',[\App\Http\Controllers\Web\User\Payouts::class,'index']);
         Route::post('new_transfer',[\App\Http\Controllers\Web\User\Payouts::class,'authenticateTransfer']);
         Route::get('get_beneficiary/{id}',[\App\Http\Controllers\Web\User\Payouts::class,'getBeneficiaryId']);
         Route::get('transfers/{ref}/details',[\App\Http\Controllers\Web\User\Payouts::class,'payoutDetails'])
             ->where('ref','[A-Za-z0-9_]+');
+        /*=================== MERCHANTS LIST ROUTES =========================*/
+        Route::get('merchants',[Merchants::class,'index']);
+        Route::get('merchant/{ref}/details',[Merchants::class,'details'])
+            ->where('ref','[A-Za-z0-9_]+');
+
         //LOGOUT Route
         Route::get('logout',[AuthController::class,'Logout']);
     });

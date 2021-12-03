@@ -121,7 +121,7 @@
 							<div class="col-xl-12 col-md-12 col-lg-12">
 								<div class="row">
 									<div class="col-xl-4 col-lg-4 col-md-6">
-										<div class="card">
+										<div class="card" data-clickable="true" data-href="{{url('account/merchants')}}">
 											<div class="card-body">
 												<i class="mdi mdi-file-outline card-custom-icon icon-dropshadow-primary text-primary fs-60"></i>
 												<p class=" mb-1"></p>

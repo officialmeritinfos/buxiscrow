@@ -140,6 +140,13 @@
             <script src="{{ asset('dashboard/public/assets/js/filupload.js')}}"></script>
             <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
             <script src="https://checkout.flutterwave.com/v3.js"></script>
+            <script>
+                $(document).ready(() => {
+                    $(document.body).on('click', '.card[data-clickable=true]', (e) => {
+                        window.location = $(e.currentTarget).data('href');
+                    });
+                });
+            </script>
             <!--<script>
 
             </script>
