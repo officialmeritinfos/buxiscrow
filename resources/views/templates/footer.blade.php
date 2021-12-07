@@ -128,5 +128,12 @@
     !function(){if("function"!=typeof window.FreshworksWidget){var n=function(){n.q.push(arguments)};n.q=[],window.FreshworksWidget=n}}()
 </script>
 <script type='text/javascript' src='https://widget.freshworks.com/widgets/72000000274.js' async defer></script>
+<script>
+    $(document).ready(() => {
+        $(document.body).on('click', '.features-box[data-clickable=true]', (e) => {
+            window.location = $(e.currentTarget).data('href');
+        });
+    });
+</script>
 </body>
 </html>

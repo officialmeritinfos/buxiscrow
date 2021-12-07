@@ -25,6 +25,7 @@
     <meta property="twitter:title" content="{{$web->siteName}} - Preventing Fraud in transactions">
     <meta property="twitter:description" content="{{$web->siteDescription}}">
     <meta property="twitter:image" content="{{ asset('home/img/'.$web->favicon) }}">
+
     <!-- Bootstrap Min CSS -->
     <link rel="stylesheet" href="{{ asset('home/css/bootstrap.min.css') }}">
     <!-- Animate Min CSS -->
@@ -43,6 +44,7 @@
     <link rel="stylesheet" href="{{ asset('home/css/style.css') }}">
     <!-- Responsive CSS -->
     <link rel="stylesheet" href="{{ asset('home/css/responsive.css') }}">
+
     <link rel="icon" type="image/png" href="{{ asset('home/img/'.$web->favicon) }}">
     <title>{{$pageName}} || {{$slogan}}</title>
 </head>
@@ -62,7 +64,7 @@
 <!-- End Preloader Area -->
 
 <!-- Start Navbar Area -->
-<div class="navbar-area">
+<div class="navbar-area navbar-style-two">
     <div class="spacle-responsive-nav">
         <div class="container">
             <div class="spacle-responsive-menu">

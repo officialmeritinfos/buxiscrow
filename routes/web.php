@@ -39,8 +39,29 @@ use App\Http\Controllers\Web\Merchant\Transactions;
 /**
  * Home Page and Registration Url
  */
+/* ================= LANDING PAGE ROUTE ======================*/
 Route::get('/',[HomeController::class,'index'])->name('home');
 Route::get('index',[HomeController::class,'index'])->name('home');
+Route::get('about',[HomeController::class,'about'])->name('about');
+Route::get('career',[HomeController::class,'career'])->name('career');
+Route::get('team',[HomeController::class,'team'])->name('team');
+Route::get('faq',[HomeController::class,'faq'])->name('faq');
+Route::get('faq/{id}/details',[HomeController::class,'faqDetails'])->name('faq_detail');
+Route::get('community',[HomeController::class,'community'])->name('community');
+Route::get('stores',[HomeController::class,'stores'])->name('stores');
+Route::get('payment-link',[HomeController::class,'paymentLink'])->name('payment-link');
+Route::get('payment-processing',[HomeController::class,'paymentProcessing'])->name('payment-processing');
+Route::get('plugin',[HomeController::class,'plugins'])->name('plugins');
+Route::get('contact',[HomeController::class,'contact'])->name('contact');
+Route::get('pricing',[HomeController::class,'pricing'])->name('pricing');
+Route::get('supported-escrows',[HomeController::class,'supportedEscrows'])->name('supported-escrows');
+Route::get('terms',[HomeController::class,'terms'])->name('terms');
+Route::get('privacy',[HomeController::class,'privacy'])->name('privacy');
+Route::get('developers',[HomeController::class,'developers'])->name('developers');
+/* ========================== PAY THROUGH LINK ROUTE =============================*/
+Route::get('/send-money/{ref}',[\App\Http\Controllers\Web\PayLink::class,'index']);
+
+
 Route::get('register',[RegisterController::class,'index'])->name('register_page');
 Route::get('login',[LoginController::class,'index'])->name('login');;
 Route::get('email_verify',[RegisterController::class,'emailVerify'])->name('email_verify');
@@ -48,7 +69,6 @@ Route::get('twoway',[LoginController::class,'twoFactor'])->name('two_factor');;
 Route::get('recoverpassword',[ResetController::class,'index'])->name('recover_password');;
 Route::get('confirm_reset',[ResetController::class,'confirmReset'])->name('confirm_password_reset');;
 Route::get('reset',[ResetController::class,'resetPassword'])->name('reset_password');
-
 Route::post('login',[AuthController::class,'signin']);
 Route::post('twoway',[AuthController::class,'twoWay']);
 
@@ -113,6 +133,7 @@ Route::middleware('auth')->group( function () {
         Route::get('merchants',[Merchants::class,'index']);
         Route::get('merchant/{ref}/details',[Merchants::class,'details'])
             ->where('ref','[A-Za-z0-9_]+');
+        Route::post('merchant/send-money',[Merchants::class,'doSendMoney']);
 
         //LOGOUT Route
         Route::get('logout',[AuthController::class,'Logout']);
@@ -128,6 +149,8 @@ Route::middleware('auth')->group( function () {
         Route::post('remove-business',[Business::class,'doRemove']);
         Route::get('business/{ref}',[Business::class,'businessDetail']);
         Route::post('business/logo_change/{ref}',[Business::class,'updateLogo']);
+        Route::get('business/{ref}/verify',[Business::class,'verify']);
+        Route::post('business/{ref}/verify',[Business::class,'doVerify']);
         /*======================= ESCROW ROUTE ==========================================*/
         Route::get('escrows',[Escrow::class,'index']);
         Route::get('new_escrow',[Escrow::class,'createEscrow']);
@@ -175,6 +198,10 @@ Route::middleware('auth')->group( function () {
         Route::post('dashboard/convert_specific_referral',[Dashboard::class,'convertSpecificReferral']);
         Route::post('dashboard/convert_to_ngn',[Dashboard::class,'convertToNGN']);
         Route::get('dashboard/get_specific_currency/{currency}',[Dashboard::class,'getSpecificCurrencyData']);
+        /*======================= PAYMENTS ROUTE ==========================================*/
+        Route::get('payments',[\App\Http\Controllers\Web\Merchant\Payments::class,'index']);
+        Route::get('payments/{ref}/details',[\App\Http\Controllers\Web\Merchant\Payments::class,'details'])
+            ->where('ref','[A-Za-z0-9_]+');
         /*======================= MERCHANT VERIFICATION =========================================*/
         Route::get('more',[MoreActions::class,'index']);
         Route::get('documents/verify',[Documents::class,'index']);

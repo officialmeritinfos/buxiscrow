@@ -117,7 +117,7 @@ class Escrows extends BaseController
             escrowsTransactions::where('id',$escrow->id)->update($dataEscrow);
             UserBalances::where('id',$payerBalance->id)->update($dataBalance);
             //add activity for user
-            $details = 'Your account was debited of <b>'.$currency.number_format($amountToPay).'</b> for
+            $details = 'Your account was debited of <b>'.$currency.number_format($amountToPay,2).'</b> for
                     the payment of the transaction with reference <b>'.$reference.'</b>';
             $dataActivityUser = ['user' => $user->id, 'activity' => 'Escrow Transaction Paid', 'details' => $details,
                 'agent_ip' => $request->ip()];

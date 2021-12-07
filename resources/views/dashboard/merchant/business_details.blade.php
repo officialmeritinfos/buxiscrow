@@ -58,6 +58,20 @@
                             </a>
                         </p>
                     @endif
+                        @if($business->isVerified ==4)
+                            <p class="text-info" style="font-size:15px;">We are currently reviewing your submitted documents.<br>
+                                <a href="{{url('merchant/business/'.$business->businessRef.'/verify')}}">
+                                    View Submitted Documents
+                                </a>
+                            </p>
+                        @endif
+                        @if($business->isVerified ==1)
+                            <p class="text-success" style="font-size:15px;">Business has been verified <br>
+                                <a href="{{url('merchant/business/'.$business->businessRef.'/verify')}}">
+                                    View Submitted Documents
+                                </a>
+                            </p>
+                        @endif
                 </div>
             </div>
             <div class="card-footer p-0">

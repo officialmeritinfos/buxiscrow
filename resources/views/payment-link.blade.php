@@ -8,9 +8,9 @@
                     <div class="d-table">
                         <div class="d-table-cell">
                             <div class="content">
-                                <h1>Modern Escrow for Africa</h1>
+                                <h1>Receive payments with ease without a website or integration.</h1>
                                 <p>Stay safe, transparent & secure with {{$web->siteName}}. Protect yourself from fraud
-                                    over anonymous transactions. </p>
+                                    over anonymous transactions.<br> </p>
 
                                 <a href="{{url('register')}}" class="default-btn">
                                     <i class="bx bxs-hot"></i>
@@ -357,72 +357,72 @@
 <!-- End Features Area -->
 
 @if(count($testimonials)>0)
-<!-- Start Feedback Area -->
-<section class="feedback-area pt-100 pb-70">
-    <div class="container">
-        <div class="section-title">
-            <h2 class="font-weight-bolder">Customers' <span>Testimonies </span></h2>
-        </div>
+    <!-- Start Feedback Area -->
+    <section class="feedback-area pt-100 pb-70">
+        <div class="container">
+            <div class="section-title">
+                <h2 class="font-weight-bolder">Customers' <span>Testimonies </span></h2>
+            </div>
 
-        <div class="feedback-slides owl-carousel owl-theme">
-            @foreach($testimonials as $testimonial)
-                <div class="single-feedback-item d-flex align-items-stretch">
-                    @empty($testimonial->photo)
-                        <img src="https://ui-avatars.com/api/?name={{$testimonial->name}}&rounded=true&background=random"
-                             alt="image">
-                    @else
-                        <img src="{{asset('home/img/'.$testimonial->photo )}}"
-                             alt="image">
-                    @endempty
+            <div class="feedback-slides owl-carousel owl-theme">
+                @foreach($testimonials as $testimonial)
+                    <div class="single-feedback-item d-flex align-items-stretch">
+                        @empty($testimonial->photo)
+                            <img src="https://ui-avatars.com/api/?name={{$testimonial->name}}&rounded=true&background=random"
+                                 alt="image">
+                        @else
+                            <img src="{{asset('home/img/'.$testimonial->photo )}}"
+                                 alt="image">
+                        @endempty
 
-                    <div class="feedback-desc">
-                        <p>
-                            {{$testimonial->comment}}
-                        </p>
-                        <div class="rating">
-                            <i class="bx bxs-star"></i>
-                            <i class="bx bxs-star"></i>
-                            <i class="bx bxs-star"></i>
-                            <i class="bx bxs-star"></i>
-                            <i class="bx bxs-star"></i>
-                        </div>
-                        <div class="client-info">
-                            <h3>{{$testimonial->name}}</h3>
+                        <div class="feedback-desc">
+                            <p>
+                                {{$testimonial->comment}}
+                            </p>
+                            <div class="rating">
+                                <i class="bx bxs-star"></i>
+                                <i class="bx bxs-star"></i>
+                                <i class="bx bxs-star"></i>
+                                <i class="bx bxs-star"></i>
+                                <i class="bx bxs-star"></i>
+                            </div>
+                            <div class="client-info">
+                                <h3>{{$testimonial->name}}</h3>
+                            </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
+            </div>
         </div>
-    </div>
-</section>
-<!-- Start Feedback Area -->
+    </section>
+    <!-- Start Feedback Area -->
 @endif
 
 @if(count($businesses)>0)
-<!-- Start Our Loving Clients Area -->
-<section class="our-loving-clients ptb-100 bg-f4f5fe">
-    <div class="container">
-        <div class="section-title">
-            <h2>Top Verified Businesses</h2>
-        </div>
+    <!-- Start Our Loving Clients Area -->
+    <section class="our-loving-clients ptb-100 bg-f4f5fe">
+        <div class="container">
+            <div class="section-title">
+                <h2>Top Verified Businesses</h2>
+            </div>
 
-        <div class="clients-logo-list align-items-center">
-            @foreach($businesses as $business)
-                <div class="single-clients-logo">
-                    @empty($business->logo)
-                        <img src="https://ui-avatars.com/api/?name={{$business->name}} "
+            <div class="clients-logo-list align-items-center">
+                @foreach($businesses as $business)
+                    <div class="single-clients-logo">
+                        @empty($business->logo)
+                            <img src="https://ui-avatars.com/api/?name={{$business->name}} "
                                  alt="image">
-                    @else
-                        <img src="{{asset('merchant/photos/'.$business->logo )}}"
-                             alt="image" style="width:150px;">
-                    @endempty
-                </div>
-            @endforeach
+                        @else
+                            <img src="{{asset('merchant/photos/'.$business->logo )}}"
+                                 alt="image" style="width:150px;">
+                        @endempty
+                    </div>
+                @endforeach
 
+            </div>
         </div>
-    </div>
-</section>
-<!-- End Our Loving Clients Area -->
+    </section>
+    <!-- End Our Loving Clients Area -->
 @endif
 
 @include('templates/footer')

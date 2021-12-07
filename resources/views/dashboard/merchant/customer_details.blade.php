@@ -22,7 +22,7 @@
 
 <!-- Row -->
 <div class="row">
-    <div class="col-xl-4 col-lg-4">
+    <div class="col-xl-6 col-lg-6">
         <div class="card box-widget widget-user">
             <div class="widget-user-image mx-auto mt-5 text-center">
                 <img alt="User Avatar" class="rounded-circle" src="https://ui-avatars.com/api/?name={{$customer->name}}&rounded=true&background=random">
@@ -69,13 +69,23 @@
             </div>
         </div>
     </div>
-    <div class="col-xl-8 col-lg-8">
+    <div class="col-xl-6 col-lg-6">
         <div class="main-content-body main-content-body-profile  mg-b-20">
             <div class="row">
                 <div class="col-xl-6 col-lg-6 col-md-6 mx-auto">
                     <div class="card">
                         <div class="card-body">
-                            <p class="mb-1">Total Transactions</p>
+                            <p class="mb-1">Total Escrows</p>
+                            <h2 class="mb-1 font-weight-bold">
+                                {{$escrows->count()}}
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-6 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="mb-1">Total Payments</p>
                             <h2 class="mb-1 font-weight-bold">
                                 {{$escrows->count()}}
                             </h2>

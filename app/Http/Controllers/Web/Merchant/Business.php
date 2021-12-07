@@ -11,16 +11,21 @@ use App\Http\Controllers\Api\BaseController;
 use App\Http\Controllers\Controller;
 use App\Models\BusinessCategory;
 use App\Models\BusinessCustomers;
+use App\Models\BusinessDocuments;
+use App\Models\BusinessDocumentTypes;
 use App\Models\Businesses;
 use App\Models\BusinessSubcategory;
 use App\Models\BusinessType;
 use App\Models\EscrowPayments;
 use App\Models\Escrows;
 use App\Models\GeneralSettings;
+use App\Models\MerchantDocument;
 use App\Models\Refunds;
 use App\Models\User;
+use App\Models\UserDocumentTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
 
 class Business extends BaseController
@@ -223,6 +228,75 @@ class Business extends BaseController
             }
         } else {
             return $this->sendError('File Error ', ['error' => $move], '422', 'File Upload Fail');
+        }
+    }
+    public function verify($ref){
+        $generalSettings = GeneralSettings::where('id', 1)->first();
+        $user = Auth::user();
+        $documentsNeeded = BusinessDocumentTypes::where('country',$user->countryCode)->orWhere('country','all')->get();
+        $businessExists = Businesses::where('merchant',$user->id)->where('businessRef',$ref)->first();
+        if (empty($businessExists)){
+            return back()->with('error','Store not found or does not belong to you.');
+        }
+        $documents = BusinessDocuments::where('business',$businessExists->id)->where('merchant',$user->id)->first();
+        $dataView = ['web' => $generalSettings, 'pageName' => 'Business Verification', 'slogan' => '- Making safer transactions',
+            'user' => $user,'documents'=>$documentsNeeded,'business'=>$businessExists,'document'=>$documents];
+        return view('dashboard.merchant.business_verification', $dataView);
+    }
+    public function doVerify(Request $request,$ref){
+        $user = Auth::user();
+        $validator = Validator::make($request->all(),
+            [
+                'certificate' => ['bail', 'required', 'mimes:jpg,bmp,png,jpeg','max:5000'],
+                'proof_of_address' => ['bail', 'required', 'mimes:jpg,bmp,png,jpeg','max:5000'],
+                'registration_type' => ['bail', 'required','numeric'],
+                'tin' => ['bail', 'required_unless:registration_type,1','string'],
+            ],
+            ['required' => ':attribute is required'],
+            ['proof_of_address' => 'Proof of Address','tin' => 'Tax ID or Employer ID','registration_type' => 'Type of Registration']
+        )->stopOnFirstFailure(true);
+        if ($validator->fails()) {
+            return $this->sendError('Error validation', ['error' => $validator->errors()->all()], '422', 'Validation Failed');
+        }
+        $businessExists = Businesses::where('merchant',$user->id)->where('businessRef',$ref)->first();
+        if (empty($businessExists)){
+            return $this->sendError('Error validation', ['error' => 'Invalid Business submitted'],
+                '422', 'Validation Failed');
+        }
+        if ($businessExists->isVerified ==4){
+            return $this->sendError('Error validation', ['error' => 'Your business is currently being reviewed.
+            Contact support if you have any questions'], '422', 'Validation Failed');
+        }
+
+        //move the certificate
+        $certificate = $request->file('certificate')->hashName();
+        $move_certificate = $request->file('certificate')->move(public_path('merchant/documents/'),$certificate);
+        //move the proof of address
+        $proof_of_address = $request->file('proof_of_address')->hashName();
+        $move_proof_of_address = $request->file('proof_of_address')->move(public_path('merchant/documents/'),$proof_of_address);
+
+        if ($move_certificate && $move_proof_of_address){
+            $dataUserDocument = ['merchant'=>$user->id,
+                'business'=>$businessExists->id ,'businessRef'=>$businessExists->businessRef,
+                'certificate'=>$certificate,'proofAddress'=>$proof_of_address,'tin'=>$request->input('tin'),
+                'businessRegType'=>$request->input('registration_type')];
+            $addDocument = BusinessDocuments::create($dataUserDocument);
+            if (!empty($addDocument)){
+                $dataBusiness=['isVerified'=>4];
+                Businesses::where('id', $businessExists->id)->update($dataBusiness);
+                $details = 'Your ' . config('app.name') . ' verification documents for '.$businessExists->name.' has been submitted';
+                $dataActivity = ['merchant' => $user->id, 'activity' => 'Business Verification submission',
+                    'details' => $details, 'agent_ip' => $request->ip()];
+                event(new AccountActivity($user, $dataActivity));
+                $success['submitted'] = true;
+                return $this->sendResponse($success, 'Verification document successfully submitted.
+                You will be contacted if there is ever any need.');
+            }else {
+                return $this->sendError('File Error ', ['error' => 'An error occurred.
+                Please try again or contact support'], '422', 'File Upload Fail');
+            }
+        } else {
+            return $this->sendError('File Error ', ['error' => $move_certificate], '422', 'File Upload Fail');
         }
     }
 }
