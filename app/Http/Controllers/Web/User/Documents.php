@@ -76,7 +76,7 @@ class Documents extends  BaseController
         if ($move1){
             $dataUserDocument = ['user'=>$user->id,'documentType'=>$docType->name,'document'=>$fileName1,'back'=>$fileName2,
             'docType'=>$docType->id];
-            $dataUser = ['hasBvn' => $hasBvn, 'secret_id' => $secret_id,'isVerified'=>1];
+            $dataUser = ['hasBvn' => $hasBvn, 'secret_id' => $secret_id,'isVerified'=>4];
             $addDocument = UserDocument::create($dataUserDocument);
             if (!empty($addDocument)){
                 $updated = User::where('id', $user->id)->update($dataUser);

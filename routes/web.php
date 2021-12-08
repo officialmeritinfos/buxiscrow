@@ -60,6 +60,10 @@ Route::get('privacy',[HomeController::class,'privacy'])->name('privacy');
 Route::get('developers',[HomeController::class,'developers'])->name('developers');
 /* ========================== PAY THROUGH LINK ROUTE =============================*/
 Route::get('/send-money/{ref}',[\App\Http\Controllers\Web\PayLink::class,'index']);
+Route::post('/send-money/doSend',[\App\Http\Controllers\Web\PayLink::class,'doSend']);
+Route::get('/send-money/process_payment/{ref}',[\App\Http\Controllers\Web\PayLink::class,'processPayment']);
+Route::get('/send-money/check_status/{ref}',[\App\Http\Controllers\Web\PayLink::class,'checkStatus']);
+Route::get('/create-invoice/{ref}',[\App\Http\Controllers\Web\PayLink::class,'index']);
 
 
 Route::get('register',[RegisterController::class,'index'])->name('register_page');

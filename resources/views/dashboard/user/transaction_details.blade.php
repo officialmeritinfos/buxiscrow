@@ -58,6 +58,9 @@
                                                         @case(3)
                                                         <span class=" font-weight-bolder font-40">Escrow</span>
                                                         @break
+                                                        @case(7)
+                                                        <span class=" font-weight-bolder font-40">Payment Link</span>
+                                                        @break
                                                         @default
                                                         <span class=" font-weight-bolder font-40">Bill</span>
                                                     @endswitch
@@ -70,7 +73,16 @@
                                             <td class="text-left" colspan="1">
                                                 <span class="badge badge-primary">
                                                     {{$transaction->currency}}
-                                                    {{number_format($transaction->amountCredited,2)}}
+                                                    {{number_format($transaction->amountCredit,2)}}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="1" class="font-weight-semibold text-right">Processing Fee</td>
+                                            <td class="text-left" colspan="1">
+                                                <span class="badge badge-warning">
+                                                    {{$transaction->currency}}
+                                                    {{number_format($transaction->charge,2)}}
                                                 </span>
                                             </td>
                                         </tr>

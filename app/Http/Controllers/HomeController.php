@@ -70,7 +70,13 @@ class HomeController extends Controller
         return view('community',$dataView);
     }
     public function stores(){
-
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $businesses = Businesses::where('status',1)->where('isVerified',1)->inRandomOrder()->limit(5)->get();
+        $testimonials = Testimonials::where('status',1)->inRandomOrder()->get();
+        $dataView=['web'=>$generalSettings,'pageName'=>'Start selling online now with '.$generalSettings->siteName.' marketplace.',
+            'slogan'=>'Create an manage unlimited sales on '.$generalSettings->siteName,
+            'businesses'=>$businesses,'testimonials'=>$testimonials];
+        return view('stores',$dataView);
     }
     public function paymentProcessing(){
 

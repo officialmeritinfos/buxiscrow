@@ -7,6 +7,7 @@ use App\Events\AccountRecovery;
 use App\Events\AccountRecoveryMail;
 use App\Events\EscrowNotification;
 use App\Events\LoginMail;
+use App\Events\SendGeneralMail;
 use App\Events\SendNotification;
 use App\Events\SendWelcomeMail;
 use App\Events\TwoFactor;
@@ -20,6 +21,7 @@ use App\Listeners\SendAccountRecoveryMail;
 use App\Listeners\SendEscrowNotification;
 use App\Listeners\SendMail;
 use App\Listeners\SendRecoveryMail;
+use App\Listeners\SendSysMail;
 use App\Listeners\SendTwoFactorMail;
 use App\Listeners\UserActivity;
 use App\Listeners\UserNotification;
@@ -68,6 +70,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         EscrowNotification::class =>[
             SendEscrowNotification::class,
+        ],
+        SendGeneralMail::class =>[
+            SendSysMail::class,
         ]
     ];
 

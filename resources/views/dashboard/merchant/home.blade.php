@@ -113,7 +113,7 @@
     @endforeach
     <div class="col-xl-12 col-md-12 col-lg-12">
         <div class="row">
-            <div class="col-xl-4 col-lg-4 col-md-6">
+            <div class="col-xl-6 col-lg-6 col-md-6">
                 <div class="card" data-clickable="true" data-href="{{url('merchant/businesses')}}">
                     <div class="card-body">
                         <i class="fa fa-shopping-basket card-custom-icon icon-dropshadow-primary text-primary fs-60"></i>
@@ -123,7 +123,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-4 col-lg-4 col-md-6">
+            <div class="col-xl-6 col-lg-6 col-md-6">
                 <div class="card" data-clickable="true" data-href="{{url('merchant/transfers')}}">
                     <div class="card-body" >
                         <i class="mdi mdi-send-secure card-custom-icon icon-dropshadow-warning text-warning fs-60"></i>
@@ -133,16 +133,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-4 col-lg-4 col-md-6">
-                <div class="card"  data-toggle="modal" data-target="#modaldemo4">
-                    <div class="card-body">
-                        <i class="mdi mdi-link card-custom-icon icon-dropshadow-info text-info fs-60"></i>
-                        <p class=" mb-1"></p>
-                        <h2 class="mb-1 font-weight-bold">Payment Link</h2>
-                        <small class="mb-1 text-muted"><span class="text-info">Receive money easily from friends</span></small><br>
-                    </div>
-                </div>
-            </div>
+
 
         </div>
     </div>

@@ -82,6 +82,9 @@ class CustomChecks{
             case 6:
                 $type = 'Remita';
                 break;
+            case 7:
+                $type = 'Payment Link';
+                break;
             default :
                 $type = 'Funding';
                 break;

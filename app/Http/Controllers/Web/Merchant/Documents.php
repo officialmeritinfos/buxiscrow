@@ -13,6 +13,7 @@ use App\Models\UserDocumentTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class Documents extends BaseController
@@ -63,11 +64,11 @@ class Documents extends BaseController
             }
         }
         //move the images
-        $fileName1 = time() . '_' . $request->file('front_image')->getClientOriginalName();
+        $fileName1 = $request->file('front_image')->hashName();
         $move1 = $request->file('front_image')->move(public_path('merchant/photos/'), $fileName1);
         //move the second image
         if($docType->hasBack ==1){
-            $fileName2 = time() . '_' . $request->file('back_image')->getClientOriginalName();
+            $fileName2 = $request->file('back_image')->hashName();
             $move2 = $request->file('back_image')->move(public_path('merchant/photos/'), $fileName2);
         }else{
             $fileName2='';
@@ -76,7 +77,7 @@ class Documents extends BaseController
         if ($move1){
             $dataUserDocument = ['merchant'=>$user->id,'documentType'=>$docType->name,'document'=>$fileName1,'back'=>$fileName2,
                 'docType'=>$docType->id];
-            $dataUser = ['hasBvn' => $hasBvn, 'secret_id' => $secret_id,'isVerified'=>1];
+            $dataUser = ['hasBvn' => $hasBvn, 'secret_id' => $secret_id,'isVerified'=>4];
             $addDocument = MerchantDocument::create($dataUserDocument);
             if (!empty($addDocument)){
                 $updated = User::where('id', $user->id)->update($dataUser);

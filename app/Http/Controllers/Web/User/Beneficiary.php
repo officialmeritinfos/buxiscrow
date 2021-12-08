@@ -71,7 +71,8 @@ class Beneficiary extends BaseController
                     $success['added']=true;
                     return $this->sendResponse($success, 'Beneficiary added');
                 }else{
-                    return $this->sendError('Invalid Request',['error'=>'Unknown error encountered'],'422','update fail');
+                    return $this->sendError('Invalid Request',['error'=>'Unknown error encountered'],
+                        '422','update fail');
                 }
             }else{
                 $createBaneficiary = $createBaneficiary->json();

@@ -55,6 +55,9 @@ class FlutterWave{
     public function removeBeneficiary($id){
         return Http::withToken($this->priKey,'Bearer')->delete($this->url.'beneficiaries/'.$id);
     }
+    public function initiatePayment($data){
+        return Http::withToken($this->priKey,'Bearer')->post($this->url.'payments',$data);
+    }
     public function verifyTransactionId($trans_id){
         return Http::withToken($this->priKey,'Bearer')->get($this->url.'transactions/'.$trans_id.'/verify');
     }
@@ -71,5 +74,11 @@ class FlutterWave{
     }
     public function getTransferId($trans_id){
         return Http::withToken($this->priKey,'Bearer')->get($this->url.'transfers/'.$trans_id);
+    }
+    public function verifyBvn($bvn){
+        return Http::withToken($this->priKey,'Bearer')->get($this->url.'kyc/bvns/'.$bvn);
+    }
+    public function createVirtualAccount($data){
+        return Http::withToken($this->priKey,'Bearer')->post($this->url.'virtual-account-numbers',$data);
     }
 }

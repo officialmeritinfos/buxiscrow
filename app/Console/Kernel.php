@@ -23,6 +23,10 @@ class Kernel extends ConsoleKernel
         Commands\CreditMerchant::class,
         Commands\DeliveryExpired::class,
         Commands\InspectionPeriodExpired::class,
+        Commands\VerifyUserBvn::class,
+        Commands\CreateAccountForUser::class,
+        Commands\CheckSendMoneyStatus::class,
+        Commands\SettleSendMoney::class,
     ];
 
     /**
@@ -44,7 +48,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('credit:merchant')->everyMinute()->withoutOverlapping();
         $schedule->command('delivery:expired')->everyMinute()->withoutOverlapping();
         $schedule->command('inspectionPeriod:expired')->everyMinute()->withoutOverlapping();
-
+        $schedule->command('verify:UserBvn')->everyMinute()->withoutOverlapping();
+        $schedule->command('create:AccountForUser')->everyMinute()->withoutOverlapping();
+        $schedule->command('check:sendMoneyStatus')->everyMinute()->withoutOverlapping();
+        $schedule->command('settle:sendMoney')->everyMinute()->withoutOverlapping();
     }
 
     /**
