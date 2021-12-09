@@ -42,7 +42,7 @@ class SettleSendMoney extends Command
     public function handle()
     {
         $moment = time();
-        $payments = SendMoney::where('status',1)->where('isSettled',2)->where('timeToSettle','<=',$moment)->get();
+        $payments = SendMoney::where('paymentStatus',1)->where('settled',2)->where('timeToSettle','<=',$moment)->get();
         if ($payments->count()>0){
             foreach ($payments as $payment) {
                 $user = User::where('id',$payment->user)->first();
@@ -52,7 +52,7 @@ class SettleSendMoney extends Command
                 $newPendingBalance = $pendingBalance - $payment->amountCredit;
                 $newAvailableBalance = $availableBalance + $payment->amountCredit;
                 $dataBalance = ['frozenBalance' => $newPendingBalance,'availableBalance'=>$newAvailableBalance];
-                $dataPayment = ['isSettled'=>1];
+                $dataPayment = ['settled'=>1];
                 $update = SendMoney::where('id', $payment->id)->update($dataPayment);
                 if ($update) {
                     UserBalances::where('id', $userBalance->id)->update($dataBalance);

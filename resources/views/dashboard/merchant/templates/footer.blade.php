@@ -117,6 +117,7 @@
 <script src="{{ asset('dashboard/merchant/transfer.js')}}"></script>
 <script src="{{ asset('dashboard/merchant/profile.js')}}"></script>
 <script src="{{ asset('dashboard/merchant/verification.js')}}"></script>
+<script src="{{ asset('dashboard/merchant/payment_link.js')}}"></script>
 <script src="{{ asset('dashboard/public/assets/plugins/datatable/js/jquery.dataTables.js')}}"></script>
 <script src="{{ asset('dashboard/public/assets/plugins/datatable/js/dataTables.bootstrap4.js')}}"></script>
 <script src="{{ asset('dashboard/public/assets/plugins/datatable/js/dataTables.buttons.min.js')}}"></script>
@@ -142,6 +143,13 @@
 <script>
     $(document).ready(() => {
         $(document.body).on('click', '.card[data-clickable=true]', (e) => {
+            window.location = $(e.currentTarget).data('href');
+        });
+    });
+</script>
+<script>
+    $(document).ready(() => {
+        $(document.body).on('click', '.clickable_row', (e) => {
             window.location = $(e.currentTarget).data('href');
         });
     });

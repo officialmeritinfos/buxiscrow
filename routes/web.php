@@ -11,6 +11,8 @@ use App\Http\Controllers\Web\Merchant\Documents;
 use App\Http\Controllers\Web\Merchant\Escrow;
 use App\Http\Controllers\Web\Merchant\Logistics;
 use App\Http\Controllers\Web\Merchant\MoreActions;
+use App\Http\Controllers\Web\Merchant\PaymentLink;
+use App\Http\Controllers\Web\Merchant\Payments;
 use App\Http\Controllers\Web\Merchant\Payouts;
 use App\Http\Controllers\Web\Merchant\Profile;
 use App\Http\Controllers\Web\Merchant\Settings;
@@ -63,7 +65,11 @@ Route::get('/send-money/{ref}',[\App\Http\Controllers\Web\PayLink::class,'index'
 Route::post('/send-money/doSend',[\App\Http\Controllers\Web\PayLink::class,'doSend']);
 Route::get('/send-money/process_payment/{ref}',[\App\Http\Controllers\Web\PayLink::class,'processPayment']);
 Route::get('/send-money/check_status/{ref}',[\App\Http\Controllers\Web\PayLink::class,'checkStatus']);
-Route::get('/create-invoice/{ref}',[\App\Http\Controllers\Web\PayLink::class,'index']);
+/* ========================== PAYMENT LINK ROUTE =============================*/
+Route::get('/pay/{ref}',[\App\Http\Controllers\Web\Pay_Merchant\Pay::class,'index']);
+Route::post('/pay/doPay',[\App\Http\Controllers\Web\Pay_Merchant\Pay::class,'doPay']);
+Route::post('/pay/process_payment/{ref}/{linkRef}',[\App\Http\Controllers\Web\Pay_Merchant\Pay::class,'doPay']);
+Route::get('/pay/check_status/{ref}',[\App\Http\Controllers\Web\Pay_Merchant\Pay::class,'checkStatus']);
 
 
 Route::get('register',[RegisterController::class,'index'])->name('register_page');
@@ -197,14 +203,23 @@ Route::middleware('auth')->group( function () {
         Route::post('settings/change_password',[Settings::class,'updatePassword']);
         Route::post('settings/update_profile',[Settings::class,'updateProfile']);
         Route::post('settings/change_account',[Settings::class,'switchAccount']);
+        /*======================= PAYMENT LINK ROUTE ==========================================*/
+        Route::get('/payment-link',[PaymentLink::class,'index']);
+        Route::get('/payment-link/create-link',[PaymentLink::class,'linkSelection']);
+        Route::get('/payment-link/create',[PaymentLink::class,'showCreateForm']);
+        Route::post('/payment-link/add-payment-link',[PaymentLink::class,'doCreate']);
+        Route::get('payment-link/{ref}/details',[PaymentLink::class,'details']);
+        Route::get('payment-link/deactivate/{ref}',[PaymentLink::class,'deactivate']);
+        Route::get('payment-link/activate/{ref}',[PaymentLink::class,'activate']);
+        Route::get('payment-link/delete/{ref}',[PaymentLink::class,'delete']);
         /*======================= ACCOUNT WALLET ROUTE ==========================================*/
         Route::post('dashboard/convert_referral',[Dashboard::class,'convertReferral']);
         Route::post('dashboard/convert_specific_referral',[Dashboard::class,'convertSpecificReferral']);
         Route::post('dashboard/convert_to_ngn',[Dashboard::class,'convertToNGN']);
         Route::get('dashboard/get_specific_currency/{currency}',[Dashboard::class,'getSpecificCurrencyData']);
         /*======================= PAYMENTS ROUTE ==========================================*/
-        Route::get('payments',[\App\Http\Controllers\Web\Merchant\Payments::class,'index']);
-        Route::get('payments/{ref}/details',[\App\Http\Controllers\Web\Merchant\Payments::class,'details'])
+        Route::get('payments',[Payments::class,'index']);
+        Route::get('payments/{ref}/details',[Payments::class,'details'])
             ->where('ref','[A-Za-z0-9_]+');
         /*======================= MERCHANT VERIFICATION =========================================*/
         Route::get('more',[MoreActions::class,'index']);

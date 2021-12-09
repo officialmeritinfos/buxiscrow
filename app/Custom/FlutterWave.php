@@ -81,4 +81,7 @@ class FlutterWave{
     public function createVirtualAccount($data){
         return Http::withToken($this->priKey,'Bearer')->post($this->url.'virtual-account-numbers',$data);
     }
+    public function createPlan($data){
+        return Http::withToken($this->priKey,'Bearer')->post($this->url.'payment-plans',$data);
+    }
 }

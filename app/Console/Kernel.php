@@ -27,12 +27,13 @@ class Kernel extends ConsoleKernel
         Commands\CreateAccountForUser::class,
         Commands\CheckSendMoneyStatus::class,
         Commands\SettleSendMoney::class,
+        Commands\AddSubscriptionPlans::class,
     ];
 
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @param  \Illuminate\Console\Scheduling\Schedule $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
@@ -52,6 +53,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('create:AccountForUser')->everyMinute()->withoutOverlapping();
         $schedule->command('check:sendMoneyStatus')->everyMinute()->withoutOverlapping();
         $schedule->command('settle:sendMoney')->everyMinute()->withoutOverlapping();
+        $schedule->command('add:subscriptionPlans')->everyMinute()->withoutOverlapping();
     }
 
     /**
