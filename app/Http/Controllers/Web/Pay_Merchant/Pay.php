@@ -145,20 +145,21 @@ class Pay extends BaseController
         }
         $user = User::where('id',$payment->user)->first();
         $dataView=['web'=>$generalSettings,'pageName'=>'Transfer Page','slogan'=>'- Making safer transactions',
-            'ref'=>$linkRef,'user'=>$user,'payment'=>$payment];
+            'ref'=>$linkRef,'user'=>$user,'payment'=>$payment,'pay_ref'=>$refs];
         return view('pay-merchant.payment_link.process-pay',$dataView);
     }
-    public function checkStatus($ref){
+    public function checkStatus($ref,$pay_ref){
         $generalSettings = GeneralSettings::where('id',1)->first();
         $gateway = new FlutterWave();
         $refs = $ref;
+        $txRef = $pay_ref;
         //get the transaction with reference
         $paymentLink = PaymentLinks::where('reference',$refs)->first();
-        if (empty($payment)){
+        if (empty($paymentLink)){
             return $this->sendError('Invalid Request',['error'=>'Payment link Was not found'],
                 '422','update fail');
         }
-        $payment = ($paymentLink->type == 2) ? PaymentLinkSubscriptions::where('transactionRef',$ref)->first() : PaymentLinkPayments::where('transactionRef',$ref)->first();
+        $payment = ($paymentLink->type == 2) ? PaymentLinkSubscriptions::where('reference',$ref)->where('transactionRef',$txRef)->first() : PaymentLinkPayments::where('reference',$ref)->where('transactionRef',$txRef)->first();
         if (empty($payment)){
             return $this->sendError('Invalid Request',['error'=>'Payment  Was not found'],
                 '422','update fail');
@@ -166,6 +167,10 @@ class Pay extends BaseController
         if ($payment->paymentStatus == 3){
             return $this->sendError('Invalid Request',['error'=>'Payment has timed out'],
                 '422','update fail');
+        }
+        if ($payment->paymentStatus == 1){
+            $success['paid']=1;
+            return $this->sendResponse($success, 'Payment already completed');
         }
 
         $user = User::where('id',$paymentLink->merchant)->first();
@@ -184,7 +189,7 @@ class Pay extends BaseController
                 $dataPayment = ['paymentStatus'=>1,'timeToSettle'=>strtotime('tomorrow'),
                     'transId'=>$response['data']['txid'],'flutCharge'=>$response['data']['appfee']];
                 $dataTransactions = [
-                    'title'=>'Transfer from '.$payment->name,'user'=>$user->id,'transactionRef'=>$payment->reference,
+                    'title'=>'Transfer from '.$payment->payerName,'user'=>$user->id,'transactionRef'=>$payment->transactionRef,
                     'transId'=>$response['data']['txid'],'currency'=>$payment->currency,'amount'=>$payment->amount,
                     'amountCredit'=>$payment->amountCredit,'amountCharged'=>$payment->amount,'charge'=>$payment->charge,
                     'transactionType'=>7,'paymentStatus'=>1,'status'=>1,'processingFee'=>$response['data']['appfee'],
@@ -198,25 +203,24 @@ class Pay extends BaseController
                     $mail2 = 'You have received <b>'.$payment->currency.number_format($payment->amount,2).'</b> on
                     '.config('app.name').' from <b>'.$payment->payerName.'</b>. Note that this amount is in your pending
                     balance and will be made available after confirmation of no chargeback.';
-                    event(new SendGeneralMail($user, $mail2, 'New Payment from '.$payment->name));
+                    event(new SendGeneralMail($user, $mail2, 'New Payment from '.$payment->payerName));
                 }else{
                     return $this->sendError('Invalid Request',['error'=>'Payment has timed out'],
                         '422','update fail');
                 }
                 $success['paid']=1;
-                return $this->sendResponse($success, 'Payment received');
+                return $this->sendResponse($success, 'Payment verified');
             }else{
                 $success['paid']=2;
                 return $this->sendResponse($success, 'Still verifying');
             }
         }else{
             $response = $response->json();
-            $dataPayment = ['paymentStatus'=>3,'statusMessage'=>'Payment was cancelled'];
-            $update = SendMoney::where('id',$payment->id)->update($dataPayment);
+            $dataPayment = ['paymentStatus'=>3];
+            $update =  ($paymentLink->type ==2) ? PaymentLinkSubscriptions::where('id',$payment->id)->update($dataPayment):PaymentLinkPayments::where('ids',$payment->id)->update($dataPayment);
             if ($update){
                 $mail = 'Your payment on '.config('app.name').' to <b>'.$user->name.'</b> has been cancelled or timed out.
-                        You can nonetheless retry this payment by using the link <a href="'.url('send-money/'.$user->userRef).'"
-                        target="_blank">'.url('send-money/'.$user->userRef).'</a><br>' ;
+                        You can nonetheless retry this payment by contacting the merchant.<br>' ;
                 //send a mail to the user
                 event(new SendGeneralMail($payment, $mail, 'Regarding your payment on '.config('app.name')));
             }

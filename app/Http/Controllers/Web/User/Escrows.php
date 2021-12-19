@@ -24,6 +24,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class Escrows extends BaseController
 {
@@ -234,6 +235,227 @@ class Escrows extends BaseController
             return $this->sendResponse($success, 'Transaction Marked as completed');
         }
         return $this->sendError('Creation Error',['error'=>'Error completing transaction'],
+            '422','Update Failed');
+    }
+    public function requestForDelivery($ref){
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $reference = $ref;
+        $user=Auth::user();
+        $escrow = \App\Models\Escrows::where('user',$user->id)->where('reference',$ref)->first();
+        if (empty($escrow)){
+            return $this->sendError('Retrieval Error ', ['error' => 'No data found'], '422', 'Failed');
+        }
+        $merchant = User::where('id',$escrow->merchant)->first();
+        $business = Businesses::where('id',$escrow->business)->first();
+        if (!empty($merchant)){
+            //Send Notification to Payer
+            $detailsToPayer = 'You just received a request from the payer, '.$user->name.', of the escrow transaction with reference
+            <b>'.$reference.'</b> to use one of our delivery partners. To fulfil this request, login to your account.' ;
+            event(new EscrowNotification($merchant, $detailsToPayer, 'Pending Escrow: Request to Add Delivery Service'));
+
+            $success['notified']=true;
+            return $this->sendResponse($success, 'Request sent');
+        }
+        return $this->sendError('Notification Error', ['error' => 'Unable to send notification'], '422', 'Failed');
+    }
+    public function doReport(Request $request){
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $user=Auth::user();
+        $validator = Validator::make($request->all(),
+            [
+                'ref' => ['bail','required','string'],
+                'report_type' => ['bail','required','alpha_num'],
+                'details' => ['bail','required','string'],
+                'pin' => ['bail','required','string'],
+            ],
+            ['required'  =>':attribute is required'],
+            ['ref'   =>'Reference','pin'=>'Transaction Pin']
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return $this->sendError('Error validation',['error'=>$validator->errors()->all()],'422','Validation Failed');
+        }
+        $input = $request->input();
+
+        $hashed = Hash::check($input['pin'],$user->transPin);
+        if (!$hashed){
+            return $this->sendError('Validation Error',['error'=>'Invalid Account Pin. Please try again or contact support'],
+                '422','Validation Failed');
+        }
+        //get the escrow
+        $escrow = \App\Models\Escrows::where('reference',$input['ref'])->where('user',$user->id)->first();
+        if (empty($escrow)){
+            return $this->sendError('Escrow Error',['error'=>'Escrow not found'],
+                '422','Update Failed');
+        }
+        if ($escrow->status == 3){
+            return $this->sendError('Escrow Error',['error'=>'Escrow already cancelled'],
+                '422','Update Failed');
+        }
+        if ($escrow->status == 1){
+            return $this->sendError('Escrow Error',['error'=>'Escrow already completed'],
+                '422','Update Failed');
+        }
+        if ($escrow->deadline < time()){
+            return $this->sendError('Escrow Error',['error'=>'Escrow already completed'],
+                '422','Update Failed');
+        }
+        //check if the transaction has a report against it
+        $escrowHasReport = EscrowReports::where('escrow_id',$escrow->id)->where('resolved','!=',1)->first();
+        if (!empty($escrowHasReport)){
+            return $this->sendError('Escrow Error',['error'=>'There is a pending report on this transaction. Please hold on till
+            this is resolved.'],
+                '422','Update Failed');
+        }
+        //check if this transaction has been updated earlier
+        $escrowWasApproved = EscrowApprovals::where('escrowId',$escrow->id)->first();
+        if (!empty($escrowWasApproved) && ($escrowWasApproved->approvedByBuyer ==1)){
+            return $this->sendError('Escrow Error',['error'=>'You have already approved this transaction.'],
+                '422','Update Failed');
+        }
+        $merchant = User::where('id',$escrow->merchant)->first();
+        $reference = $input['ref'];
+        $business = Businesses::where('id',$escrow->business)->first();
+        //check if it has payment and queue for refund
+        $payments = EscrowPayments::where('escrowId',$escrow->id)->first();
+        if (empty($payments)){
+            return $this->sendError('Escrow Error',['error'=>'Payment has not been received for this transaction yet.'],
+                '422','Update Failed');
+        }
+        if ($payments->isRefunded == 1){
+            return $this->sendError('Escrow Error',['error'=>'Payment for this transaction has been refunded.'],
+                '422','Update Failed');
+        }
+        if ($payments->isQueuedForRefund == 1){
+            return $this->sendError('Escrow Error',['error'=>'Payment for this transaction has been queued for a refund.'],
+                '422','Update Failed');
+        }
+        if ($payments->isSettled == 1){
+            return $this->sendError('Escrow Error',['error'=>'Payment for this transaction has been settled to your MERCHANT.'],
+                '422','Update Failed');
+        }
+        $reportRef = Str::random('6').time();
+        $reportType = ReportType::where('report_code',$input['report_type'])->first();
+        $dataEscrow = ['status'=>7];
+        $dataReport = ['user'=>$user->id,'merchant'=>$escrow->merchant,'business'=>$escrow->business,'escrow_id'=>$escrow->id,
+            'reportType'=>$reportType->report_code,'reportDetails'=>$input['details'],'reported_at'=>time(),'reference'=>$reportRef
+        ];
+        $addReport = EscrowReports::create($dataReport);
+        if (!empty($addReport)){
+            //Send Notification to Merchant
+            $detailsToMerchant = 'Your escrow with reference <b>'.$reference.'</b> created by
+            <b>'.$business->name.'</b> has been reported by your buyer/client as such
+            placed on hold. Please reach out to your buyer while we look into this.<br>
+            Abuse reference: <b>'.$reportRef.' </b>' ;
+            event(new EscrowNotification($merchant, $detailsToMerchant, 'Escrow Reported'));
+
+            //Send Notification to Payer
+            $detailsToMerchant = 'The escrow with reference <b>'.$reference.'</b> created by
+            <b>'.$business->name.'</b> has been reported by you as such
+            placed on hold. Our legal team has been notified about this, and will reach out to you soon.<br>
+            Abuse reference: <b>'.$reportRef.' </b>';
+            event(new EscrowNotification($user, $detailsToMerchant, 'Escrow Reported'));
+
+            $success['reported']=true;
+            return $this->sendResponse($success, 'Transaction Reported');
+        }
+        return $this->sendError('Creation Error',['error'=>'Error reporting transaction'],
+            '422','Update Failed');
+    }
+    public function doResolve(Request $request){
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $user=Auth::user();
+        $validator = Validator::make($request->all(),
+            [
+                'ref' => ['bail','required','string'],
+                'details' => ['bail','required','string'],
+                'pin' => ['bail','required','string'],
+            ],
+            ['required'  =>':attribute is required'],
+            ['ref'   =>'Reference','pin'=>'Transaction Pin']
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return $this->sendError('Error validation',['error'=>$validator->errors()->all()],'422','Validation Failed');
+        }
+        $input = $request->input();
+
+        $hashed = Hash::check($input['pin'],$user->transPin);
+        if (!$hashed){
+            return $this->sendError('Validation Error',['error'=>'Invalid Account Pin. Please try again or contact support'],
+                '422','Validation Failed');
+        }
+        //get the escrow
+        $escrow = \App\Models\Escrows::where('reference',$input['ref'])->where('user',$user->id)->first();
+        if (empty($escrow)){
+            return $this->sendError('Escrow Error',['error'=>'Escrow not found'],
+                '422','Update Failed');
+        }
+        if ($escrow->status == 3){
+            return $this->sendError('Escrow Error',['error'=>'Escrow already cancelled'],
+                '422','Update Failed');
+        }
+        if ($escrow->status == 1){
+            return $this->sendError('Escrow Error',['error'=>'Escrow already completed'],
+                '422','Update Failed');
+        }
+        if ($escrow->deadline < time()){
+            return $this->sendError('Escrow Error',['error'=>'Escrow already completed'],
+                '422','Update Failed');
+        }
+        //check if the transaction has a report against it
+        $escrowHasReport = EscrowReports::where('escrow_id',$escrow->id)->where('resolved','!=',1)->first();
+        if (empty($escrowHasReport)){
+            return $this->sendError('Escrow Error',['error'=>'There is no pending report on this transaction. '],
+                '422','Update Failed');
+        }
+        //check if this transaction has been updated earlier
+        $escrowWasApproved = EscrowApprovals::where('escrowId',$escrow->id)->first();
+        if (!empty($escrowWasApproved) && ($escrowWasApproved->approvedByBuyer ==1)){
+            return $this->sendError('Escrow Error',['error'=>'You have already approved this transaction.'],
+                '422','Update Failed');
+        }
+        $merchant = User::where('id',$escrow->merchant)->first();
+        $reference = $input['ref'];
+        $business = Businesses::where('id',$escrow->business)->first();
+        //check if it has payment and queue for refund
+        $payments = EscrowPayments::where('escrowId',$escrow->id)->first();
+        if (empty($payments)){
+            return $this->sendError('Escrow Error',['error'=>'Payment has not been received for this transaction yet.'],
+                '422','Update Failed');
+        }
+        if ($payments->isRefunded == 1){
+            return $this->sendError('Escrow Error',['error'=>'Payment for this transaction has been refunded.'],
+                '422','Update Failed');
+        }
+        if ($payments->isQueuedForRefund == 1){
+            return $this->sendError('Escrow Error',['error'=>'Payment for this transaction has been queued for a refund.'],
+                '422','Update Failed');
+        }
+        if ($payments->isSettled == 1){
+            return $this->sendError('Escrow Error',['error'=>'Payment for this transaction has been settled to your MERCHANT.'],
+                '422','Update Failed');
+        }
+        $dataEscrow = ['status'=>4];
+        $reportRef = $escrowHasReport->reference;
+
+        $dataReport = ['resolved'=>1,'resolution'=>$input['details'],'merchantLost'=>2,'buyerLost'=>1,'resolved_at'=>time()];
+        $update = EscrowReports::where('id',$escrowHasReport->id)->update($dataReport);
+        if ($update){
+            //Send Notification to Merchant
+            $detailsToMerchant = 'The report on your escrow with reference <b>'.$reference.'</b> created by
+            <b>'.$business->name.'</b> has been resolved by your buyer/client. <br>
+            Abuse reference: <b>'.$reportRef.' </b>' ;
+            event(new EscrowNotification($merchant, $detailsToMerchant, 'Escrow Report Resolution'));
+
+            //Send Notification to Payer
+            $detailsToMerchant = 'Your report on the escrow with reference <b>'.$reference.'</b> created by
+            <b>'.$business->name.'</b> has been resolved by you . <br>
+            Abuse reference: <b>'.$reportRef.' </b>';
+            event(new EscrowNotification($user, $detailsToMerchant, 'Escrow Report Resolution'));
+
+            $success['reported']=true;
+            return $this->sendResponse($success, 'Transaction Resolved');
+        }
+        return $this->sendError('Creation Error',['error'=>'Error resolving transaction'],
             '422','Update Failed');
     }
 }

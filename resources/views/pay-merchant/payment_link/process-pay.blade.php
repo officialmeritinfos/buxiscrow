@@ -79,7 +79,8 @@
                                               id="send_money" action="{{url('send-money/doSend')}}">
 
                                             <div class="form-group ">
-                                                <p id="trans_ref" style="display: none;">{{$payment->reference}}</p>
+                                                <p id="trans_ref" style="display: none;">{{$ref}}</p>
+                                                <p id="pay_ref" style="display: none;">{{$pay_ref}}</p>
                                                 <p class="font-40 text-center text-primary" style="font-size:20px;" id="checking"></p>
                                                 <p class="font-40 text-center text-primary" style="font-size:20px;" id="checkings">
                                                     <i id="icons"></i></p>

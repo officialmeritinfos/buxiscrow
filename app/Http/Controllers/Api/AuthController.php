@@ -166,13 +166,12 @@ class AuthController extends BaseController
             'codeExpires'   =>''
         ];
         $update = User::where('id',$authUser->id)->update($dataUser);
-        if (empty($update)){
+        if (!$update){
             return $this->sendError('Verification Error',['error'=>'Unable to update data'],'422','Verification Failed');
         }
         $user = User::where('id',$authUser->id)->first();
         event(new SendWelcomeMail($user));
         auth()->user()->tokens()->delete();
-        $request->session()->forget('token');
         $success['verified'] = true;
         return $this->sendResponse($success, 'Email successfully verified.');
     }
@@ -265,7 +264,6 @@ class AuthController extends BaseController
         event(new AccountRecoveryMail($users));
         auth()->user()->tokens()->delete();
 
-        $request->session()->forget('token');
         $success['reset'] = true;
         return $this->sendResponse($success, 'Password has been reset');
     }

@@ -259,7 +259,7 @@
                                 </div>
                             </div>
                             <div class="d-flex order-lg-2 ml-auto">
-                                <div class="dropdown  header-fullscreen pl-5">
+                                <div class="dropdown  profile-dropdown">
                                     <a class="nav-link icon p-0" data-toggle="dropdown">
                                         <svg class="header-icon" x="1008" y="1248" viewBox="0 0 24 24"  height="100%" width="100%"
                                              preserveAspectRatio="xMidYMid meet" focusable="false">
@@ -272,8 +272,8 @@
                                         <a class="dropdown-item" href="{{url('merchant/payment-link')}}">
                                             Payment Link
                                         </a>
-                                        <a class="dropdown-item" href="{{url('merchant/invoices')}}">
-                                            Invoice
+                                        <a class="dropdown-item" href="#">
+                                            Invoice <sup class="badge badge-success">coming soon</sup>
                                         </a>
                                         <a class="dropdown-item" href="{{url('merchant/new_escrow')}}">
                                             Escrow

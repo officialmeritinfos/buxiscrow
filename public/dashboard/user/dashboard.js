@@ -56,6 +56,18 @@ var dashboardRequests = function (){
                         });
                     }
                 },
+                error: function(jqXHR, textStatus, errorThrown){
+                    toastr.options = {
+                        "closeButton" : true,
+                        "progressBar" : true
+                    }
+                    toastr.error(errorThrown);
+                    //return to natural stage
+                    setTimeout(function(){
+                        $('#deposit_method :input').attr('disabled', false);
+                        $("#submit").LoadingOverlay("hide");
+                    }, 3000);
+                }
             });
             $('#add_money').modal('hide');
         });
@@ -122,6 +134,18 @@ var dashboardRequests = function (){
                         }, 3000);
                     }
                 },
+                error: function(jqXHR, textStatus, errorThrown){
+                    toastr.options = {
+                        "closeButton" : true,
+                        "progressBar" : true
+                    }
+                    toastr.error(errorThrown);
+                    //return to natural stage
+                    setTimeout(function(){
+                        $('#set_trans_pin :input').attr('disabled', false);
+                        $("#submit_pin").LoadingOverlay("hide");
+                    }, 3000);
+                }
 
             });
         });
@@ -180,6 +204,18 @@ var dashboardRequests = function (){
                         }, 3000);
                     }
                 },
+                error: function(jqXHR, textStatus, errorThrown){
+                    toastr.options = {
+                        "closeButton" : true,
+                        "progressBar" : true
+                    }
+                    toastr.error(errorThrown);
+                    //return to natural stage
+                    setTimeout(function(){
+                        $('#new_beneficiary :input').attr('disabled', false);
+                        $("#add_beneficiary").LoadingOverlay("hide");
+                    }, 3000);
+                }
 
             });
         });
@@ -237,6 +273,18 @@ var dashboardRequests = function (){
                             }, 3000);
                         }
                     },
+                    error: function(jqXHR, textStatus, errorThrown){
+                        toastr.options = {
+                            "closeButton" : true,
+                            "progressBar" : true
+                        }
+                        toastr.error(errorThrown);
+                        //return to natural stage
+                        setTimeout(function(){
+                            $('#remove_beneficiary :input').attr('disabled', false);
+                            $("#remove_beneficiary").LoadingOverlay("hide");
+                        }, 3000);
+                    }
 
                 });
             });
@@ -293,6 +341,18 @@ var dashboardRequests = function (){
                         }, 3000);
                     }
                 },
+                error: function(jqXHR, textStatus, errorThrown){
+                    toastr.options = {
+                        "closeButton" : true,
+                        "progressBar" : true
+                    }
+                    toastr.error(errorThrown);
+                    //return to natural stage
+                    setTimeout(function(){
+                        $('#convert_referral :input').attr('disabled', false);
+                        $("#convert_referral").LoadingOverlay("hide");
+                    }, 3000);
+                }
 
             });
         });
@@ -347,6 +407,18 @@ var dashboardRequests = function (){
                         }, 3000);
                     }
                 },
+                error: function(jqXHR, textStatus, errorThrown){
+                    toastr.options = {
+                        "closeButton" : true,
+                        "progressBar" : true
+                    }
+                    toastr.error(errorThrown);
+                    //return to natural stage
+                    setTimeout(function(){
+                        $('#convert_currency :input').attr('disabled', false);
+                        $("#convert_currency").LoadingOverlay("hide");
+                    }, 3000);
+                }
 
             });
         });
@@ -412,6 +484,18 @@ var dashboardRequests = function (){
                         }, 3000);
                     }
                 },
+                error: function(jqXHR, textStatus, errorThrown){
+                    toastr.options = {
+                        "closeButton" : true,
+                        "progressBar" : true
+                    }
+                    toastr.error(errorThrown);
+                    //return to natural stage
+                    setTimeout(function(){
+                        $('#convert_referral_specific :input').attr('disabled', false);
+                        $("#convert_referral_specific").LoadingOverlay("hide");
+                    }, 3000);
+                }
 
             });
         });

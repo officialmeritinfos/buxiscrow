@@ -208,9 +208,9 @@
                                 transaction is carried out faster than ever.
                             </p>
                             <br>
-                            <button class="btn btn-outline-primary" data-toggle="modal" data-target="#request_delivery_service"
+                            <button class="btn btn-outline-primary" id=" request_delivery_service"
                                     data-value="{{$escrow->reference}}">
-                                Ask Merchant To Add Delivery Partner
+                                Request Delivery
                             </button>
                         </div>
                     </div>
@@ -318,6 +318,118 @@
                                     </h4>
                                 </div>
                             @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+    @if(empty($report))
+        <div class="col-xl-12 col-lg-12 ">
+            <div class="card box-widget widget-user">
+                <div class="card-body text-center">
+                    <div class="pro-user">
+                        <div class="alert alert-primary">
+                            <strong>Reports</strong>
+                            <hr class="message-inner-separator">
+                            <p>
+                                There is no report on this transaction.
+                            </p>
+                            <br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @else
+        <div class="col-xl-12 col-lg-12 ">
+            <div class="card box-widget widget-user">
+                <div class="card-header">
+                    <h4>Report Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="pro-user">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <h4 class="pro-user-username text-dark mb-1">Reference</h4>
+                                <p> {{$report->reference}} </p>
+                            </div>
+                            <div class="col-md-3">
+                                <h4 class="pro-user-username text-dark mb-1">Report Title</h4>
+                                <p>
+                                    @foreach($report_types as $re_type)
+                                        @if($re_type->report_code == $report->reportType)
+                                            <span>{{$re_type->report_name}}</span>
+                                        @endif
+                                    @endforeach
+                                </p>
+                            </div>
+                            <div class="col-md-3">
+                                <h4 class="pro-user-username text-dark mb-1">Time Reported</h4>
+                                <p> {{date('d-m-Y h:i:s a', $report->reported_at)}} </p>
+                            </div>
+                            <div class="col-md-3">
+                                <h4 class="pro-user-username text-dark mb-1">Details</h4>
+                                <p> {{$report->reportDetails}} </p>
+                            </div>
+                            <div class="col-md-3 mx-auto">
+                                <h4 class="pro-user-username text-dark mb-1">Status</h4>
+                                <p>
+                                    @switch($report->resolved)
+                                        @case(1)
+                                        <span class="badge badge-success">Reseolved</span>
+                                        @break
+                                        @case(2)
+                                        <span class="badge badge-info">Active</span>
+                                        @break
+                                    @endswitch()
+                                </p>
+                            </div>
+                            <div class="col-md-3 mx-auto">
+                                <h4 class="pro-user-username text-dark mb-1">Who Lost</h4>
+                                @if($report->resolved == 1)
+                                    <p>
+                                        @switch($report->merchantLost)
+                                            @case(1)
+                                            <span class="badge badge-warning">Merchant Lost Case</span>
+                                            @break
+                                        @endswitch()
+                                    </p>
+                                    <p>
+                                        @switch($report->buyerLost)
+                                            @case(1)
+                                            <span class="badge badge-warning">Buyer Lost Case</span>
+                                            @break
+                                        @endswitch()
+                                    </p>
+                                @else
+                                    <span class="badge badge-primary">Report is being reviewed</span>
+                                @endif
+                            </div>
+                            <div class="col-md-3 mx-auto">
+                                <h4 class="pro-user-username text-dark mb-1">Resolution</h4>
+                                @if($report->resolved == 1)
+                                    <span class="badge badge-success">{{$report->resolution}}</span>
+                                @else
+                                    <span class="badge badge-primary">Report is being reviewed</span>
+                                @endif
+                            </div>
+                            <div class="col-md-3 mx-auto">
+                                <h4 class="pro-user-username text-dark mb-1">Time Resolved</h4>
+                                @if($report->resolved == 1)
+                                    <span class="badge badge-success">{{date('d-m-Y h:i:s a', $report->resolved_at)}}</span>
+                                @else
+                                    <span class="badge badge-secondary">Report is being reviewed</span>
+                                @endif
+                            </div>
+                            <div class="col-md-3 mx-auto">
+                                <h4 class="pro-user-username text-dark mb-1">Action</h4>
+                                @if($report->resolved != 1)
+                                    <button class="btn btn-outline-success btn-sm" data-toggle="modal" data-target="#resolveReport"
+                                            data-value="{{$escrow->reference}}">
+                                        Resolve</button>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>

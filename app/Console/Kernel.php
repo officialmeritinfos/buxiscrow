@@ -54,6 +54,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('check:sendMoneyStatus')->everyMinute()->withoutOverlapping();
         $schedule->command('settle:sendMoney')->everyMinute()->withoutOverlapping();
         $schedule->command('add:subscriptionPlans')->everyMinute()->withoutOverlapping();
+        $schedule->command('settle:paymentLinkPayments')->everyMinute()->withoutOverlapping();
+        $schedule->command('settle:paymentLinkSubscriptions')->everyMinute()->withoutOverlapping();
     }
 
     /**

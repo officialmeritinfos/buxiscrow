@@ -2,6 +2,7 @@ var payMerchantRequests = function (){
     var checkPaymentStatus = function (){
         $(document).ready(function () {
             var ref = $('#trans_ref').html();
+            var payRef = $('#pay_ref').html();
             var baseUrl='';
             $.ajaxSetup({
                 headers: {
@@ -10,7 +11,7 @@ var payMerchantRequests = function (){
             });
             $.ajax({
                 type:'GET',
-                url: baseUrl+'/pay/check_status/'+ref,
+                url: baseUrl+'/pay/check_status/'+ref+'/'+payRef,
                 data:$(this).serialize(),
                 dataType:"json",
                 beforeSend:function(){

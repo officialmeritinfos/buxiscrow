@@ -53,6 +53,18 @@ var MerchantDashboardRequest=function () {
                         }, 3000);
                     }
                 },
+                error: function(jqXHR, textStatus, errorThrown){
+                    toastr.options = {
+                        "closeButton" : true,
+                        "progressBar" : true
+                    }
+                    toastr.error(errorThrown);
+                    //return to natural stage
+                    setTimeout(function(){
+                        $('#set_trans_pin :input').attr('disabled', false);
+                        $("#submit_pin").LoadingOverlay("hide");
+                    }, 3000);
+                }
 
             });
         });
@@ -108,6 +120,18 @@ var MerchantDashboardRequest=function () {
                         }, 3000);
                     }
                 },
+                error: function(jqXHR, textStatus, errorThrown){
+                    toastr.options = {
+                        "closeButton" : true,
+                        "progressBar" : true
+                    }
+                    toastr.error(errorThrown);
+                    //return to natural stage
+                    setTimeout(function(){
+                        $('#convert_referral :input').attr('disabled', false);
+                        $("#convert_referral").LoadingOverlay("hide");
+                    }, 3000);
+                }
 
             });
         });
@@ -162,6 +186,18 @@ var MerchantDashboardRequest=function () {
                         }, 3000);
                     }
                 },
+                error: function(jqXHR, textStatus, errorThrown){
+                    toastr.options = {
+                        "closeButton" : true,
+                        "progressBar" : true
+                    }
+                    toastr.error(errorThrown);
+                    //return to natural stage
+                    setTimeout(function(){
+                        $('#convert_currency :input').attr('disabled', false);
+                        $("#convert_currency").LoadingOverlay("hide");
+                    }, 3000);
+                }
 
             });
         });
@@ -227,6 +263,18 @@ var MerchantDashboardRequest=function () {
                         }, 3000);
                     }
                 },
+                error: function(jqXHR, textStatus, errorThrown){
+                    toastr.options = {
+                        "closeButton" : true,
+                        "progressBar" : true
+                    }
+                    toastr.error(errorThrown);
+                    //return to natural stage
+                    setTimeout(function(){
+                        $('#convert_referral_specific :input').attr('disabled', false);
+                        $("#convert_referral_specific").LoadingOverlay("hide");
+                    }, 3000);
+                }
 
             });
         });

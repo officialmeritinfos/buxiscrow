@@ -68,8 +68,8 @@ Route::get('/send-money/check_status/{ref}',[\App\Http\Controllers\Web\PayLink::
 /* ========================== PAYMENT LINK ROUTE =============================*/
 Route::get('/pay/{ref}',[\App\Http\Controllers\Web\Pay_Merchant\Pay::class,'index']);
 Route::post('/pay/doPay',[\App\Http\Controllers\Web\Pay_Merchant\Pay::class,'doPay']);
-Route::post('/pay/process_payment/{ref}/{linkRef}',[\App\Http\Controllers\Web\Pay_Merchant\Pay::class,'doPay']);
-Route::get('/pay/check_status/{ref}',[\App\Http\Controllers\Web\Pay_Merchant\Pay::class,'checkStatus']);
+Route::get('/pay/process_payment/{ref}/{linkRef}',[\App\Http\Controllers\Web\Pay_Merchant\Pay::class,'processPayment']);
+Route::get('/pay/check_status/{linkRef}/{ref}',[\App\Http\Controllers\Web\Pay_Merchant\Pay::class,'checkStatus']);
 
 
 Route::get('register',[RegisterController::class,'index'])->name('register_page');
@@ -133,6 +133,9 @@ Route::middleware('auth')->group( function () {
         Route::get('escrows/{ref}/details',[Escrows::class,'details']);
         Route::get('escrows/pay_for_escrow/{ref}',[Escrows::class,'doPayment']);
         Route::post('complete-escrow',[Escrows::class,'doComplete']);
+        Route::post('report-escrow',[Escrows::class,'doReport']);
+        Route::post('resolve-escrow',[Escrows::class,'doResolve']);
+        Route::get('escrows/notify_payer_pending_escrow_payment/{ref}',[Escrows::class,'requestForDelivery']);
         /*=================== PAYOUT ROUTES =========================*/
         Route::get('transfers',[\App\Http\Controllers\Web\User\Payouts::class,'index']);
         Route::post('new_transfer',[\App\Http\Controllers\Web\User\Payouts::class,'authenticateTransfer']);

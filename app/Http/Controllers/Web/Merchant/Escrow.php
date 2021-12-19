@@ -19,6 +19,7 @@ use App\Models\EscrowDeliveries;
 use App\Models\EscrowPayments;
 use App\Models\EscrowReports;
 use App\Models\GeneralSettings;
+use App\Models\ReportType;
 use App\Models\States;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -216,10 +217,11 @@ class Escrow extends BaseController
             $logisticCompany = '';
         }
         $escrow_approvals = EscrowApprovals::where('escrowId',$escrow->id)->where('escrowRef',$escrow->reference)->first();
+        $report_types = ReportType::where('status',1)->get();
         $dataView=[
             'web'=>$generalSettings,'pageName'=>'Escrow Details','slogan'=>'- Making safer transactions','user'=>$user,
             'escrow'=>$escrow,'business'=>$business,'payment'=>$payment,'report'=>$reports,'payer'=>$payer,'escrow_delivery'=>$escrow_delivery,
-            'logisticsLocation'=>$logisticsLocation,'logistics'=>$logisticCompany,'approval'=>$escrow_approvals
+            'logisticsLocation'=>$logisticsLocation,'logistics'=>$logisticCompany,'approval'=>$escrow_approvals,'report_types'=>$report_types
         ];
         return view('dashboard.merchant.escrow_details',$dataView);
     }
