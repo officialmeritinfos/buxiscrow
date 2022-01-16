@@ -90,7 +90,7 @@ var dashboardRequests = function (){
                 }
             });
             $.ajax({
-                url: baseUrl+'/account/dashboard/set_pin/',
+                url: baseUrl+'/public/account/dashboard/set_pin',
                 method: "POST",
                 data:$(this).serialize(),
                 dataType:"json",
@@ -300,7 +300,7 @@ var dashboardRequests = function (){
                 }
             });
             $.ajax({
-                url: baseUrl+'/account/dashboard/convert_referral/',
+                url: baseUrl+'/account/dashboard/convert_referral',
                 method: "POST",
                 data:$(this).serialize(),
                 dataType:"json",
@@ -443,7 +443,7 @@ var dashboardRequests = function (){
                 }
             });
             $.ajax({
-                url: baseUrl+'/account/dashboard/convert_specific_referral/',
+                url: baseUrl+'/account/dashboard/convert_specific_referral',
                 method: "POST",
                 data:$(this).serialize(),
                 dataType:"json",
@@ -510,7 +510,7 @@ var dashboardRequests = function (){
                 }
             });
             $.ajax({
-                url: baseUrl+'/account/dashboard/convert_to_ngn/',
+                url: baseUrl+'/account/dashboard/convert_to_ngn',
                 method: "POST",
                 data:$(this).serialize(),
                 dataType:"json",

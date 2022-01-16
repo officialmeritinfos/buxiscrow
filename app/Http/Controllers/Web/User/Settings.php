@@ -12,6 +12,7 @@ use App\Models\CurrencyAccepted;
 use App\Models\GeneralSettings;
 use App\Models\States;
 use App\Models\User;
+use App\Models\UserNotificationSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -28,8 +29,9 @@ class Settings extends BaseController
         $state = States::where('iso2',$user->state)->where('country_code',$user->countryCode) ->first();
         $country = Country::where('iso2',$user->countryCode)->first();
         $currency = CurrencyAccepted::where('status',1)->get();
+        $security = UserNotificationSettings::where('user',$user->id)->first();
         $dataView = ['web' => $generalSettings, 'pageName' => 'Account Settings', 'slogan' => '- Making safer transactions',
-            'user' => $user,'countries'=>$countries,'country'=>$country,'state'=>$state,'currencies'=>$currency];
+            'user' => $user,'countries'=>$countries,'country'=>$country,'state'=>$state,'currencies'=>$currency,'security'=>$security];
         return view('dashboard.user.settings', $dataView);
     }
 
@@ -126,6 +128,7 @@ class Settings extends BaseController
                     'occupation'=>$request->input('occupation'),
                     'about'=>htmlentities($request->input('about')),
                     'majorCurrency'=>$request->input('currency'),
+                    'name'=>$request->input('name'),
                     'hasDob'=>1
                 ];
                 $update = User::where('id',$user->id)->update($dataUser);
@@ -156,5 +159,37 @@ class Settings extends BaseController
         }
         return $this->sendError('Invalid Account', ['error' => 'Unable to switch account'],
             '422', 'Validation Failed');
+    }
+    public function updateSecurity(Request $request)
+    {
+        $user = Auth::user();
+        $validator = Validator::make($request->all(),
+            ['pin' => ['bail', 'required', 'digits:6'], 'twoWay' => ['bail', 'required','integer'], 'notification' =>
+                ['required','integer'],
+            ],
+            ['required' => ':attribute is required'],
+            ['notification' => 'Notification', 'twoWay' => 'Two Factor Authentication',]
+        )->stopOnFirstFailure(true);
+        if ($validator->fails()) {
+            return $this->sendError('Error validation', ['error' => $validator->errors()->all()], '422', 'Validation Failed');
+        }
+        $hashed_pin = Hash::check($request->input('pin'), $user->transPin);
+        if ($hashed_pin) {
+            $dataUser = ['twoWay'=>$request->input('twoWay')];
+            $dataNotification = ['login_notification' =>$request->input('notification'),
+                'news_letters'=>$request->input('notification'),'account_activity'=>$request->input('notification')];
+            $updated = User::where('id', $user->id)->update($dataUser);
+            if (!empty($updated)) {
+                UserNotificationSettings::where('user',$user->id)->update($dataNotification);
+                $details = 'Your ' . config('app.name') . ' security data was updated.';
+                $dataActivity = ['user' => $user->id, 'activity' => 'Security update', 'details' => $details, 'agent_ip' => $request->ip()];
+                event(new AccountActivity($user, $dataActivity));
+                $success['update'] = true;
+                return $this->sendResponse($success, 'Account Security data successfully updated');
+            }
+            return $this->sendError('Authentication Error ', ['error' => 'Unknown error occurred. Please contact support'], '422', 'password change Fail');
+        }
+        return $this->sendError('Password Error ', ['error' => 'Wrong Credentials. Account pin is wrong'], '422',
+            'security Fail');
     }
 }

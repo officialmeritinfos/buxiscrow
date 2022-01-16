@@ -10,6 +10,7 @@ use App\Events\EscrowNotification;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\Businesses;
 use App\Models\BusinessType;
+use App\Models\CurrencyAccepted;
 use App\Models\EscrowReports;
 use App\Models\Escrows;
 use App\Models\GeneralSettings;
@@ -62,6 +63,11 @@ class Merchants extends BaseController
             ->where('status',2)->count();
         $reportedTransactions = EscrowReports::where('business',$businessExists->id)
             ->where('merchantLost',1)->count();
+        if($escrows->count() <1){
+            $divBy=1;
+        }else{
+            $divBy = $escrows->count();
+        }
         $dataView=[
             'web'=>$generalSettings,'pageName'=>'Store Information','slogan'=>'- Making safer transactions','user'=>$user,
             'business'=>$businessExists,'type'=>$businessType,'category'=>$category,'subcategory'=>$subcategory,
@@ -69,7 +75,7 @@ class Merchants extends BaseController
             'completed_transactions'=>$regular->formatNumbers($completedTransaction),
             'pending_transactions'=>$regular->formatNumbers($pendingTransactions),
             'cancelled_transactions'=> $regular->formatNumbers($cancelledTransaction),
-            'credit_score'=> (100 -($reportedTransactions/$escrows->count())*100).'%',
+            'credit_score'=> (100 -($reportedTransactions/$divBy)*100).'%',
             'balances'=>UserBalances::where('user',$user->id)->get(),
             'transactionsWithBusiness'=>PayBusinessTransactions::where('user',$user->id)->where('business',$businessExists->id)->get(),
             'escrowsWithBusiness'=>Escrows::where('user',$user->id)->where('business',$businessExists->id)->paginate(15)
@@ -110,6 +116,17 @@ class Merchants extends BaseController
         }
         $narration = (empty($input['narration'])) ? 'Payment from '.$user->name : $input['narration'];
         //get currency
+        $currency = CurrencyAccepted::where('code',strtoupper($input['currency']))->first();
+        $charge = $input['amount'] * ($currency->nonEscrowCharge/100);
+        if ($charge < $currency->nonEscrowChargeMin){
+            $charge = $currency->nonEscrowChargeMin;
+        }elseif ($charge > $currency->nonEscrowChargeMax){
+            $charge = $currency->nonEscrowChargeMax;
+        }else{
+            $charge = $charge;
+        }
+        $amountToDebit = $input['amount']+$charge;
+
         $balance = UserBalances::where('currency',strtoupper($input['currency']))->where('user',$user->id)->first();
         if (empty($balance)){
             return $this->sendError('Transfer Error',['error'=>'Balance not supported'],'422',
@@ -122,12 +139,12 @@ class Merchants extends BaseController
                 'Validation Failed');
         }
         $userAvailableBalance = $balance->availableBalance;
-        if ($input['amount'] > $userAvailableBalance){
+        if ($amountToDebit > $userAvailableBalance){
             return $this->sendError('Transfer Error',['error'=>'Insufficient fund in '.$balance->currency.' account'],'422',
                 'Validation Failed');
         }
-        $userNewBalance = $userAvailableBalance - $input['amount'];
-        $charge = 0;
+        $userNewBalance = $userAvailableBalance - $amountToDebit;
+        $charge = $charge;
         //get business associated to transaction
         $business = Businesses::where('businessRef',$input['ref'])->first();
         $merchant = User::where('id',$business->merchant)->first();
@@ -143,8 +160,8 @@ class Merchants extends BaseController
         $merchantBalanceData=['availableBalance'=>$merchantNewBalance];
         //prepare data for transaction
         $transactionData =['user'=>$user->id,'merchant'=>$merchant->id,'business'=>$business->id,'amount'=>$input['amount'],
-        'charge'=>$charge,'amountCredited'=>$input['amount']-$charge,'currency'=>$input['currency'],'status'=>1,'narration'=>$narration,
-        'reference'=>$reference,'name'=>$user->name];
+            'charge'=>$charge,'amountCredited'=>$input['amount'],'currency'=>$input['currency'],'status'=>1,'narration'=>$narration,
+            'reference'=>$reference,'name'=>$user->name];
         //add to database
         $add = PayBusinessTransactions::create($transactionData);
         if (!empty($add)){
@@ -155,7 +172,8 @@ class Merchants extends BaseController
             //create the notification both to mail of merchant and that of user
             //add activity for user
             $details = 'Your transfer of <b>'.$input['currency'].number_format($input['amount'],2).'</b> to <b>'.$business->name.'</b>
-                        was successful. Your new available balance is <b>'.$input['currency'].number_format($userNewBalance,2).'</b>.
+                        was successful. You were charged <b>'.$input['currency'].$charge.'</b> extra for this transfer.
+                        Your new available balance is <b>'.$input['currency'].number_format($userNewBalance,2).'</b>.
                         Your Transaction reference is <b>'.$reference.'</b>';
             $dataActivityUser = ['user' => $user->id, 'activity' => 'Payment to Merchant', 'details' => $details,
                 'agent_ip' => $request->ip()];
@@ -167,10 +185,7 @@ class Merchants extends BaseController
                                 from <b>'.$user->name.'</b>. Your new available balance is <b>'.$input['currency'].number_format($merchantNewBalance,2).'</b>.
                                 Transaction reference is <b>' . $reference . '</b><br>
                                 If you have any Questions, please contact your client or reach out to us at <b>'.$generalSettings->legalMail.'</b> for help.';
-            $dataActivityMerchant = ['merchant' => $merchant->id, 'activity' => 'Receipt from '.$user->name, 'details' => $detailsToMerchant,
-                'agent_ip' => $request->ip()];
             event(new EscrowNotification($merchant, $detailsToMerchant, 'Receipt from '.$user->name));
-            event(new AccountActivity($merchant, $dataActivityMerchant));
             $success['paid'] = true;
             return $this->sendResponse($success, 'Payment Sent');
         }

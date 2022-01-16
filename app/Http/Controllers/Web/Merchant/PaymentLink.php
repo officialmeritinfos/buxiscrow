@@ -59,7 +59,7 @@ class PaymentLink extends BaseController
                 'description' => ['bail','required','string'],
                 'currency' => ['bail','nullable','alpha','required_with:amount'],
                 'amount' => ['bail','nullable','string'],
-                'who_pays_charge' => ['bail','integer',Rule::requiredIf($request->input('input_type'),'!=','3')],
+                'who_pays_charge' => ['nullable', 'bail','integer',Rule::requiredIf($request->input('input_type'),'!=','3')],
                 'link_type' => ['bail','required','numeric','integer'],
                 'store' => ['bail','nullable', 'numeric','integer',Rule::exists('business','id')->where(function($query) use ($request){
                     return $query->where('merchant',$request->user()->id);

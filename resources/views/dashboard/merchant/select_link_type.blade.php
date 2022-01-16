@@ -21,7 +21,7 @@
 
 <!-- Row -->
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="card  mb-5" data-clickable="true"
              data-href="{{url('merchant/payment-link/create?type=donation')}}">
             <div class="card-body">
@@ -38,7 +38,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="card  mb-5" data-clickable="true"
              data-href="{{url('merchant/payment-link/create?type=one_time')}}">
             <div class="card-body">
@@ -55,7 +55,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <!--<div class="col-md-4">
         <div class="card  mb-5" data-clickable="true"
              data-href="{{url('merchant/payment-link/create?type=subscription')}}">
             <div class="card-body">
@@ -71,7 +71,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>-->
 </div>
 <!-- /Row -->
 

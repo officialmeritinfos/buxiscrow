@@ -69,5 +69,7 @@ class Kernel extends HttpKernel
         'isBuyer'=>\App\Http\Middleware\isBuyer::class,
         'isUser'=>\App\Http\Middleware\isUser::class,
         'isVendor'=>\App\Http\Middleware\isVendor::class,
+        'is_admin'=>\App\Http\Middleware\isAdmin::class,
+        'webTwoWay'=>\App\Http\Middleware\twoWayCheck::class,
     ];
 }

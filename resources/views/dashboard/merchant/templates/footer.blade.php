@@ -144,6 +144,11 @@
     $(document).ready(() => {
         $(document.body).on('click', '.card[data-clickable=true]', (e) => {
             window.location = $(e.currentTarget).data('href');
+            $.LoadingOverlay("show", {
+                text        : "please wait ..",
+                textAnimation:"pulse",
+                size    : "10"
+            });
         });
     });
 </script>
@@ -152,18 +157,24 @@
         $(document.body).on('click', '.clickable_row', (e) => {
             window.location = $(e.currentTarget).data('href');
         });
+        
     });
 </script>
-<!--<script src="https://checkout.flutterwave.com/v3.js"></script>
+<!--<script src="https://checkout.flutterwave.com/v3.js"></script>-->
+<script src="//code.tidio.co/xcwpfyqvxda13s1aqcztetqkkvto5otq.js" async></script>
 <script>
-
+    $(function(){
+        $("a").on("click",function(){
+            $.LoadingOverlay("show", {
+                text        : "please wait ..",
+                textAnimation:"pulse",
+                size    : "10"
+            });
+            setTimeout(function(){
+                $.LoadingOverlay("hide", true);
+            }, 2000);
+        });
+    });
 </script>
-<script>
-   window.fwSettings={
-       'widget_id':72000000274
-   };
-   !function(){if("function"!=typeof window.FreshworksWidget){var n=function(){n.q.push(arguments)};n.q=[],window.FreshworksWidget=n}}()
-</script>
-<script type='text/javascript' src='https://widget.freshworks.com/widgets/72000000274.js' async defer></script>-->
 </body>
 </html>

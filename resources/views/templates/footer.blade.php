@@ -1,3 +1,26 @@
+
+<!-- Start Partner Area -->
+<section class="partner-area pt-100 pb-70 bg-f8fbfa">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-3 col-md-12">
+                <div class="partner-title">
+                    <h3>Trusted by:</h3>
+                </div>
+            </div>
+
+            <div class="col-lg-9 col-md-12">
+            
+                <!-- TrustBox widget - Micro Review Count -->
+                <div class="trustpilot-widget" data-locale="en-US" data-template-id="5419b6a8b0d04a076446a9ad" data-businessunit-id="61c79d70b7e722486b5f4919" data-style-height="24px" data-style-width="100%" data-theme="light" data-min-review-count="10">
+                  <a href="https://www.trustpilot.com/review/buxiscrow.co" target="_blank" rel="noopener">Trustpilot</a>
+                </div>
+                <!-- End TrustBox widget -->
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End Partner Area -->
 <!-- Start Free Trial Area -->
 <section class="free-trial-area pb-100 bg-f4f5fe">
     <div class="container">
@@ -43,7 +66,6 @@
                         <li><a href="{{url('career')}}">Career</a></li>
                         <li><a href="{{url('pricing')}}">Our Pricing</a></li>
                         <li><a href="{{$web->blogLink}}">News</a></li>
-                        <li><a href="{{url('supported-escrows')}}">Supported Escrows</a></li>
                     </ul>
                 </div>
             </div>
@@ -56,7 +78,6 @@
                         <li><a href="{{url('faq')}}">FAQ's</a></li>
                         <li><a href="{{url('privacy')}}">Privacy Policy</a></li>
                         <li><a href="{{url('terms')}}">Terms & Conditions</a></li>
-                        <li><a href="{{url('developers')}}">Developers</a></li>
                         <li><a href="{{url('contact')}}">Contact Us</a></li>
                     </ul>
                 </div>
@@ -121,13 +142,7 @@
 <script src="{{ asset('home/js/coustom-particles.js') }}"></script>
 <!-- Main JS -->
 <script src="{{ asset('home/js/main.js') }}"></script>
-<script>
-    window.fwSettings={
-        'widget_id':72000000274
-    };
-    !function(){if("function"!=typeof window.FreshworksWidget){var n=function(){n.q.push(arguments)};n.q=[],window.FreshworksWidget=n}}()
-</script>
-<script type='text/javascript' src='https://widget.freshworks.com/widgets/72000000274.js' async defer></script>
+<script src="//code.tidio.co/xcwpfyqvxda13s1aqcztetqkkvto5otq.js" async></script>
 <script>
     $(document).ready(() => {
         $(document.body).on('click', '.features-box[data-clickable=true]', (e) => {

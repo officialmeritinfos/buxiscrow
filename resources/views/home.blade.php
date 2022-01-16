@@ -425,4 +425,43 @@
 <!-- End Our Loving Clients Area -->
 @endif
 
+@if(!empty($web->androidLink))
+<!-- Start App Download Area -->
+<section class="app-download-area ptb-100">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-5 col-md-12">
+                <div class="app-download-image">
+                    <img src="{{ asset('home/img/mobile.png')}}" alt="image">
+                </div>
+            </div>
+
+            <div class="col-lg-7 col-md-12">
+                <div class="app-download-content">
+                    <span class="sub-title">Download App</span>
+                    <h2>Supporting your customers on the go with our mobile app</h2>
+
+                    <div class="btn-box">
+                        @if(!empty($web->iphoneLink))
+                        <a href="{{$web->iphoneLink}}" class="apple-store-btn" target="_blank">
+                            <img src="{{ asset('home/img/applestore.png')}}" alt="image">
+                            Download on the
+                            <span>Apple Store</span>
+                        </a>
+                        @endif
+                        <a href="{{$web->androidLink}}" class="play-store-btn">
+                            <img src="{{ asset('home/img/playstore.png')}}" alt="image">
+                            Get it on
+                            <span>Google Play</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End App Download Area -->
+@endif
+
+
 @include('templates/footer')

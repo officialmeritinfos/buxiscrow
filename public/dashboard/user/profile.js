@@ -440,6 +440,76 @@ var settingsRequests = function (){
             }
         });
     }
+    var updateSecurity = function (){
+        $('#updateSecurity').on('submit',(function(e) {
+            e.preventDefault();
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $.ajax({
+                type:'POST',
+                url: $(this).attr('action'),
+                data:$(this).serialize(),
+                dataType:"json",
+                beforeSend:function(){
+                    $('#update_security').attr('disabled', true);
+                    $("#updateSecurity :input").prop("readonly", true);
+                    $("#update_security").LoadingOverlay("show",{
+                        text        : "updating",
+                        size        : "20"
+                    });
+                },
+                success:function(data)
+                {
+                    if(data.error)
+                    {
+                        toastr.options = {
+                            "closeButton" : true,
+                            "progressBar" : true
+                        }
+                        toastr.error(data.data.error);
+                        //return to natural stage
+                        setTimeout(function(){
+                            $('#update_security').attr('disabled', false);
+                            $("#update_security").LoadingOverlay("hide");
+                            $("#updateSecurity :input").prop("readonly", false);
+                            $("#updateSecurity")[0].reset();
+                        }, 3000);
+                    }
+                    if(data.success)
+                    {
+                        toastr.options = {
+                            "closeButton" : true,
+                            "progressBar" : true
+                        }
+                        toastr.success(data.message);
+                        //return to natural stage
+                        setTimeout(function(){
+                            $('#update_security').attr('disabled', false);
+                            $("#update_security").LoadingOverlay("hide");
+                            location.reload();
+                        }, 3000);
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown){
+                    toastr.options = {
+                        "closeButton" : true,
+                        "progressBar" : true
+                    }
+                    toastr.error(errorThrown);
+                    //return to natural stage
+                    setTimeout(function(){
+                        $('#update_security').attr('disabled', false);
+                        $("#update_security").LoadingOverlay("hide");
+                        $("#updateSecurity :input").prop("readonly", false);
+                        $("#updateSecurity")[0].reset();
+                    }, 3000);
+                }
+            });
+        }));
+    }
     return {
         init: function() {
             updateProfilePhoto();
@@ -450,6 +520,7 @@ var settingsRequests = function (){
             updateTheme();
             webTheme();
             switchAccount();
+            updateSecurity();
         }
     };
 }();

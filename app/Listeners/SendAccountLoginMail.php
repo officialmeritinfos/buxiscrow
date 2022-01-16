@@ -35,25 +35,26 @@ class SendAccountLoginMail
     {
         $generalSettings = GeneralSettings::find(1);
         $user = $event->user;
+        $ip=$event->ip;
         //get the user's country
         $ipDetector = new Regular();
-        $agent = $ipDetector->getUserAgent();
-        $agents = $ipDetector->getUserCountry();
+        $agent = $ipDetector->getUserAgent($ip);
+        $agents = $ipDetector->getUserCountry($ip);
         $location = $agent->json();
         $locations = $agents->json();
-        $userIp = $locations['ip'];
-        $userLocation = $locations['district'].','.$locations['city'].','.$locations['state_prov'].','.$locations['country_name'];
+        $userIp = $ip;
+        /*$userLocation = $locations['city'].','.$locations['state_prov'].','.$locations['country_name'];
         $dataLogin = [
             'user'=>$user->id,
             'loginIp'=>$userIp,
             'agent'=>$_SERVER['HTTP_USER_AGENT'],
             'location'=>$userLocation,
             'isp'=>$locations['isp']
-        ];
+        ];*/
         $userNotification = UserNotificationSettings::where('user',$user->id)->first();
         if ($user->emailVerified ==1){
             if($userNotification->login_notification == 1) {
-                ($user->accountType == 2) ? Logins::create($dataLogin) : MerchantLogins::create($dataLogin);
+                //($user->accountType == 2) ? Logins::create($dataLogin) : MerchantLogins::create($dataLogin);
                 $dataMail = [
                     'subject' => 'Login Notification',
                     'name' => $user->name,

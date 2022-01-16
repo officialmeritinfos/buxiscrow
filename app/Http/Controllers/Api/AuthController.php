@@ -59,7 +59,7 @@ class AuthController extends BaseController
                     return $this->sendResponse($success, 'Authentication needed');
                     break;
                 case 2:
-                    event(new LoginMail($authUser));
+                    event(new LoginMail($authUser,$request->ip()));
                     $token = $authUser->createToken('MyAuthApp')->plainTextToken;
                     $success['token'] =  $token;
                     $success['name'] =  $authUser->name;
@@ -102,19 +102,25 @@ class AuthController extends BaseController
             $ref = '';
         }
         $type = (empty($request->account_type)) ? 2 : $request->account_type;
+
+        $ipAddress = $request->ip();
         //get the user's country
         $ipDetector = new Regular();
-        $location = $ipDetector->getUserCountry();
+        $location = $ipDetector->getUserCountry($ipAddress);
         if ($location->ok()){
             $location = $location->json();
             $country = $location['country_name'];
             $country_code = $location['country_code2'];
             $country_code3 = $location['country_code3'];
-            $userIp = $location['ip'];
+            $userIp = $ipAddress;
             $phoneCode = $location['calling_code'];
         }
         $randomString = new RandomString(8);
         $generalSettings = GeneralSettings::find(1);
+        if ($generalSettings->siteRegistration != 1){
+            return $this->sendError('Error Creating account', ['error'=>'New Registration is currently disabled.
+            Please contact support for more information.'],'401','account error');
+        }
         $userRef = $generalSettings->userCode.'_'.$randomString->randomNum();
         $validated = $validator->validated();
         $userData = ['name'=>$validated['name'],'username'=>$validated['username'],'email'=>$validated['email'],'phone'=>$phone,'emailVerified'=>$generalSettings->emailVerification,
@@ -294,7 +300,7 @@ class AuthController extends BaseController
             return $this->sendError('Verification Error',['error'=>'unable to update data'],'422','Verification Failed');
         }
         $delete=TwoWay::where('user',$user->id)->delete();
-        event(new LoginMail($user));
+        event(new LoginMail($user,$request->ip()));
         $token = $user->createToken('BuxiscrowApp')->plainTextToken;
         $success['loggedIn'] = true;
         $success['token'] = $token;

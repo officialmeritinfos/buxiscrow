@@ -16,7 +16,7 @@ return [
             'pri_key'   =>'FLWSECK-0fe32eceaf0eedcf01ee0b96a390e3e7-X',
             'enc_key'   =>'0fe32eceaf0e57fa6df8d439',
         ],
-        'isLive'=>2,
+        'isLive'=>1,
         'url1'=>'https://api.flutterwave.com/v3/',
         'url2'=>''
     ],

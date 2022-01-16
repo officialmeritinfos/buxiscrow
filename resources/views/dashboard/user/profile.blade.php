@@ -100,7 +100,7 @@
                                                 <td class="py-2 px-0">
                                                     <span class="font-weight-semibold w-50">Phone </span>
                                                 </td>
-                                                <td class="py-2 px-0">+{{$user->phoneCode}}{{$user->phone}}</td>
+                                                <td class="py-2 px-0">{{$user->phoneCode}}{{$user->phone}}</td>
                                             </tr>
                                             <tr>
                                                 <td class="py-2 px-0">

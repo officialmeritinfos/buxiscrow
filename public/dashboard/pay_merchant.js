@@ -58,6 +58,7 @@ var payMerchantRequests = function (){
                             $("#checkings").removeClass('text-primary');
                             $("#checkings").addClass('text-success');
                             $("#checking").text(data.message);
+
                         }
 
                     }

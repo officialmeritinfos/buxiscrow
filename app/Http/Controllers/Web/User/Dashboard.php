@@ -54,7 +54,7 @@ class Dashboard extends BaseController
     }
     public function getDepositMethod($currency){
         $currency = strtoupper($currency);
-        $methodExists = DepositMethods::where('currency',$currency)->get();
+        $methodExists = DepositMethods::where('currency',$currency)->where('status',1)->get();
         if (count($methodExists)<1){
             return $this->sendError('Data Error',['error'=>'unable to fetch data'],'401','No Date Fetched');
         }

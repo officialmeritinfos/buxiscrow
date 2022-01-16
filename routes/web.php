@@ -43,7 +43,7 @@ use App\Http\Controllers\Web\Merchant\Transactions;
  */
 /* ================= LANDING PAGE ROUTE ======================*/
 Route::get('/',[HomeController::class,'index'])->name('home');
-Route::get('index',[HomeController::class,'index'])->name('home');
+Route::get('index',[HomeController::class,'index'])->name('homes');
 Route::get('about',[HomeController::class,'about'])->name('about');
 Route::get('career',[HomeController::class,'career'])->name('career');
 Route::get('team',[HomeController::class,'team'])->name('team');
@@ -58,7 +58,7 @@ Route::get('contact',[HomeController::class,'contact'])->name('contact');
 Route::get('pricing',[HomeController::class,'pricing'])->name('pricing');
 Route::get('supported-escrows',[HomeController::class,'supportedEscrows'])->name('supported-escrows');
 Route::get('terms',[HomeController::class,'terms'])->name('terms');
-Route::get('privacy',[HomeController::class,'privacy'])->name('privacy');
+Route::get('privacy',[HomeController::class,'terms'])->name('privacy');
 Route::get('developers',[HomeController::class,'developers'])->name('developers');
 /* ========================== PAY THROUGH LINK ROUTE =============================*/
 Route::get('/send-money/{ref}',[\App\Http\Controllers\Web\PayLink::class,'index']);
@@ -87,7 +87,7 @@ Route::post('get-country-state/{country}',[Countries::class,'getCountryStates'])
 Route::post('get-state-city/{state}',[Countries::class,'getStateCities']);
 Route::get('get-logistics/{country}/{state}/{city}',[Logistics::class,'getDeliverySerices']);
 
-Route::middleware('auth')->group( function () {
+Route::middleware(['webTwoWay','auth'])->group( function () {
     Route::middleware(['isUser'])->prefix('account')->group(function (){
         Route::get('dashboard',[\App\Http\Controllers\Web\User\Dashboard::class,'index']);
         Route::get('dashboard/get_deposit_method/{code}',[\App\Http\Controllers\Web\User\Dashboard::class,'getDepositMethod']);
@@ -102,11 +102,12 @@ Route::middleware('auth')->group( function () {
         Route::post('dashboard/bank-transfer',[\App\Http\Controllers\Web\User\Dashboard::class,'createBankTransferCharge']);
         Route::post('dashboard/charge-otp',[\App\Http\Controllers\Web\User\Dashboard::class,'completeOtpCharge']);
         Route::post('dashboard/set_pin',[\App\Http\Controllers\Web\User\Dashboard::class,'setPin']);
+        Route::post('dashboard/set_pin/',[\App\Http\Controllers\Web\User\Dashboard::class,'setPin']);
         Route::get('activities',[\App\Http\Controllers\Web\User\Activities::class,'index']);
         Route::get('logins',[\App\Http\Controllers\Web\User\Activities::class,'logins']);
         Route::get('transactions',[\App\Http\Controllers\Web\User\Transactions::class,'index']);
         Route::get('transactions/{ref}/details',[\App\Http\Controllers\Web\User\Transactions::class,'details'])
-        ->where('ref','[A-Za-z0-9_]+');
+            ->where('ref','[A-Za-z0-9_]+');
         Route::get('beneficiary',[\App\Http\Controllers\Web\User\Beneficiary::class,'index']);
         Route::post('add-beneficiary',[\App\Http\Controllers\Web\User\Beneficiary::class,'addBeneficiary']);
         Route::post('remove-beneficiary/{id}',[\App\Http\Controllers\Web\User\Beneficiary::class,'removeBeneficiary']);
@@ -117,6 +118,7 @@ Route::middleware('auth')->group( function () {
         Route::post('settings/change_password',[\App\Http\Controllers\Web\User\Settings::class,'updatePassword']);
         Route::post('settings/update_profile',[\App\Http\Controllers\Web\User\Settings::class,'updateProfile']);
         Route::post('settings/change_account',[\App\Http\Controllers\Web\User\Settings::class,'switchAccount']);
+        Route::post('settings/update_security',[\App\Http\Controllers\Web\User\Settings::class,'updateSecurity']);
         Route::get('profile',[\App\Http\Controllers\Web\User\Profile::class,'index']);
         Route::get('account_wallet',[\App\Http\Controllers\Web\User\AccountWallet::class,'index']);
         Route::get('more',[\App\Http\Controllers\Web\User\MoreActions::class,'index']);
@@ -206,6 +208,7 @@ Route::middleware('auth')->group( function () {
         Route::post('settings/change_password',[Settings::class,'updatePassword']);
         Route::post('settings/update_profile',[Settings::class,'updateProfile']);
         Route::post('settings/change_account',[Settings::class,'switchAccount']);
+        Route::post('settings/update_security',[Settings::class,'updateSecurity']);
         /*======================= PAYMENT LINK ROUTE ==========================================*/
         Route::get('/payment-link',[PaymentLink::class,'index']);
         Route::get('/payment-link/create-link',[PaymentLink::class,'linkSelection']);
@@ -233,6 +236,32 @@ Route::middleware('auth')->group( function () {
         Route::get('documents/documents',[MoreActions::class,'index']);
         Route::get('documents/error',[MoreActions::class,'index']);
         //LOGOUT Route
+        Route::get('logout',[AuthController::class,'Logout']);
+    });
+    Route::middleware(['is_admin'])->prefix('admin')->group(function (){
+        /*==================DASHBOARD ROUTES ==========================*/
+        Route::get('dashboard',[\App\Http\Controllers\Web\Admin\Dashboard::class,'index']);
+        Route::post('dashboard/set_pin',[\App\Http\Controllers\Web\Admin\Dashboard::class,'setPin']);
+        /*================= BUSINESS ROUTES ======================================*/
+        Route::get('businesses',[\App\Http\Controllers\Web\Admin\Business::class,'index']);
+        Route::get('business/{ref}',[\App\Http\Controllers\Web\Admin\Business::class,'businessDetail']);
+        Route::get('business/{ref}/verify',[\App\Http\Controllers\Web\Admin\Business::class,'verify']);
+        Route::get('business/{ref}/update_verify/{status}',[\App\Http\Controllers\Web\Admin\Business::class,'updateVerificationStatus']);
+        Route::get('business/{ref}/status/{status}',[\App\Http\Controllers\Web\Admin\Business::class,'updateStatus']);
+        /*================= USERS ROUTES ======================================*/
+        Route::get('users',[\App\Http\Controllers\Web\Admin\Users::class,'index']);
+        Route::get('users/{ref}/details',[\App\Http\Controllers\Web\Admin\Users::class,'details']);
+        Route::get('users/update_user_level/{ref}',[\App\Http\Controllers\Web\Admin\Users::class,'updateLevel']);
+        Route::get('users/downgrade_user_level/{ref}',[\App\Http\Controllers\Web\Admin\Users::class,'downgradeLevel']);
+        Route::get('users/activate_user/{ref}',[\App\Http\Controllers\Web\Admin\Users::class,'activateUser']);
+        Route::get('users/deactivate_user/{ref}',[\App\Http\Controllers\Web\Admin\Users::class,'deactivateUser']);
+        Route::get('users/activate_two_way/{ref}',[\App\Http\Controllers\Web\Admin\Users::class,'activateTwo']);
+        Route::get('users/deactivate_two_way/{ref}',[\App\Http\Controllers\Web\Admin\Users::class,'deactivateTwo']);
+        Route::get('users/activate_withdrawal/{ref}',[\App\Http\Controllers\Web\Admin\Users::class,'activateSend']);
+        Route::get('users/deactivate_withdrawal/{ref}',[\App\Http\Controllers\Web\Admin\Users::class,'deactivateSend']);
+        Route::get('users/activate_notifications/{ref}',[\App\Http\Controllers\Web\Admin\Users::class,'activateNotification']);
+        Route::get('users/deactivate_notifications/{ref}',[\App\Http\Controllers\Web\Admin\Users::class,'deactivateNotification']);
+
         Route::get('logout',[AuthController::class,'Logout']);
     });
 });

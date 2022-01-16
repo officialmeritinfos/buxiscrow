@@ -44,13 +44,15 @@ class AuthController extends BaseController
                 case 1:
                     event(new TwoFactor($authUser));
                     $token = $authUser->createToken('MyAuthApp')->plainTextToken;
+                    $dataUser = ['twoWayPassed' =>2];
+                    User::where('id',$authUser->id)->update($dataUser);
                     $success['token'] =  $token;
                     $success['name'] =  $authUser->name;
                     $success['needAuth'] = true;
                     return $this->sendResponse($success, 'Authentication needed');
                     break;
                 case 2:
-                    event(new LoginMail($authUser));
+                    event(new LoginMail($authUser,$request->ip()));
                     $token = $authUser->createToken('MyAuthApp')->plainTextToken;
                     $dataUser = ['twoWayPassed' =>1,'loggedIn'=>1];
                     User::where('id',$authUser->id)->update($dataUser);
@@ -59,6 +61,7 @@ class AuthController extends BaseController
                     $success['needAuth'] = false;
                     $success['loggedIn'] = true;
                     $success['account_type']=$authUser->accountType;
+                    $success['is_admin']=$authUser->is_admin;
                     return $this->sendResponse($success, 'User signed in');
                     break;
             }
@@ -94,11 +97,12 @@ class AuthController extends BaseController
             return $this->sendError('Verification Error',['error'=>'unable to update data'],'422','Verification Failed');
         }
         $delete=TwoWay::where('user',$user->id)->delete();
-        event(new LoginMail($user));
+        event(new LoginMail($user,$request->ip()));
         $token = $user->createToken('BuxiscrowApp')->plainTextToken;
         $success['loggedIn'] = true;
         $success['token'] = $token;
         $success['account_type']=$user->accountType;
+        $success['is_admin']=$user->is_admin;
         session('token',$token);
         return $this->sendResponse($success, 'User Logged in');
     }

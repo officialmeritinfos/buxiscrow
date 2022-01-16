@@ -45,6 +45,9 @@
     <link rel="stylesheet" href="{{ asset('home/css/responsive.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('home/img/'.$web->favicon) }}">
     <title>{{$pageName}} || {{$slogan}}</title>
+    <!-- TrustBox script -->
+<script type="text/javascript" src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
+<!-- End TrustBox script -->
 </head>
 
 <body>
@@ -135,9 +138,9 @@
                                     <a href="{{url('stores')}}" class="nav-link">Stores <small class="badge badge-success">coming soon</small></a>
                                 </li>
 
-                                <li class="nav-item">
+                                <!--<li class="nav-item">
                                     <a href="{{url('payment-processing')}}" class="nav-link">Payment Processing</a>
-                                </li>
+                                </li>-->
 
                                 <li class="nav-item">
                                     <a href="{{url('payment-link')}}" class="nav-link">Payment link </a>
@@ -158,9 +161,9 @@
                                     <a href="https://buxiscrow-solutions.gitbook.io/api-reference/" target="_blank" class="nav-link">Api Reference</a>
                                 </li>
 
-                                <li class="nav-item">
+                                <!--<li class="nav-item">
                                     <a href="{{url('plugin')}}" class="nav-link">Plugins </a>
-                                </li>
+                                </li>-->
                             </ul>
                         </li>
                         <li class="nav-item d-block d-sm-none">

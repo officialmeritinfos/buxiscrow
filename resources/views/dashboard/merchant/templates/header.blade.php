@@ -242,7 +242,7 @@
                 <div class="app-header header top-header">
                     <div class="container-fluid">
                         <div class="d-flex">
-                            <a class="header-brand" href="{{url('account/dashboard')}}">
+                            <a class="header-brand" href="{{url('merchant/dashboard')}}">
                                 <img src="{{asset('home/img/'.$web->logo)}}" class="header-brand-img desktop-lgo" >
                                 <img src="{{asset('home/img/'.$web->logo)}}" class="header-brand-img dark-logo" >
                                 <img src="{{asset('home/img/'.$web->favicon)}}" class="header-brand-img mobile-logo">

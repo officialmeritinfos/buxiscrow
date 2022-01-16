@@ -9,7 +9,7 @@ var MerchantDashboardRequest=function () {
                 }
             });
             $.ajax({
-                url: baseUrl+'/merchant/dashboard/set_pin/',
+                url: baseUrl+'/merchant/dashboard/set_pin',
                 method: "POST",
                 data:$(this).serialize(),
                 dataType:"json",
@@ -79,7 +79,7 @@ var MerchantDashboardRequest=function () {
                 }
             });
             $.ajax({
-                url: baseUrl+'/merchant/dashboard/convert_referral/',
+                url: baseUrl+'/merchant/dashboard/convert_referral',
                 method: "POST",
                 data:$(this).serialize(),
                 dataType:"json",
@@ -222,7 +222,7 @@ var MerchantDashboardRequest=function () {
                 }
             });
             $.ajax({
-                url: baseUrl+'/merchant/dashboard/convert_specific_referral/',
+                url: baseUrl+'/merchant/dashboard/convert_specific_referral',
                 method: "POST",
                 data:$(this).serialize(),
                 dataType:"json",
@@ -289,7 +289,7 @@ var MerchantDashboardRequest=function () {
                 }
             });
             $.ajax({
-                url: baseUrl+'/merchant/dashboard/convert_to_ngn/',
+                url: baseUrl+'/merchant/dashboard/convert_to_ngn',
                 method: "POST",
                 data:$(this).serialize(),
                 dataType:"json",

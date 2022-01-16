@@ -6,11 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Models\CurrencyAccepted;
 use App\Models\GeneralSettings;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
     //view login page
     public function index(){
+        if (Auth::user()){
+            $user = Auth::user();
+            if ($user->is_admin == 1){
+                return redirect('admin/dashboard')->with('success','Welcome back '.$user->name);
+            }
+            if ($user->accountType ==1){
+                return redirect('merchant/dashboard')->with('success','Welcome back '.$user->name);
+            }else{
+                return redirect('account/dashboard')->with('success','Welcome back '.$user->name);
+            }
+        }
         $generalSettings = GeneralSettings::where('id',1)->first();
         $currency =CurrencyAccepted::where('status',1)->get();
         $dataView=['web'=>$generalSettings,'pageName'=>'Login Page','slogan'=>'- Making safer transactions','currencies'=>$currency];

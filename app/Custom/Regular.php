@@ -26,12 +26,12 @@ class Regular{
      * @return \Illuminate\Http\Client\Response
      * @return only requested country
      */
-    public function getUserCountry(){
-        $response = Http::get($this->ip_url.'ipgeo?apiKey='.$this->ip_api);
+    public function getUserCountry($ip){
+        $response = Http::get($this->ip_url.'ipgeo?apiKey='.$this->ip_api.'&ip='.$ip);
         return $response;
     }
-    public function getUserAgent(){
-        $response = Http::get($this->ip_url.'user-agent?apiKey='.$this->ip_api);
+    public function getUserAgent($ip){
+        $response = Http::get($this->ip_url.'user-agent?apiKey='.$this->ip_api.'&ip='.$ip);
         return $response;
     }
     public function getUserCountryUserAgent(){

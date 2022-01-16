@@ -44,7 +44,7 @@
                     {{config('app.name')}} makes from each transaction.</p>
                 <div class="row">
                     <div class="col-md-6 mx-auto">
-                        <input class="form-control form-control-lg" id="link" value="{{$user->username}}" readonly><br>
+                        <input class="form-control form-control-lg" id="link" value="{{url('register?referrals='.$user->username)}}" readonly><br>
                         <p>
                             <a href="{{url('register?referrals='.$user->username)}}" target="_blank">
                                 Your Referral link

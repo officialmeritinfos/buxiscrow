@@ -208,7 +208,13 @@ class Pay extends BaseController
                     return $this->sendError('Invalid Request',['error'=>'Payment has timed out'],
                         '422','update fail');
                 }
+                if (!empty($paymentLink->redirect_url)){
+                    $redirect_url=$paymentLink->redirect_url.'?reference='.$pay_ref;
+                }else{
+                    $redirect_url ='same';
+                }
                 $success['paid']=1;
+                $success['redir']=$redirect_url;
                 return $this->sendResponse($success, 'Payment verified');
             }else{
                 $success['paid']=2;

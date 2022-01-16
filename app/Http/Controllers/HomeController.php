@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Businesses;
+use App\Models\CurrencyAccepted;
 use App\Models\Faq;
 use App\Models\FaqCategory;
 use App\Models\GeneralSettings;
@@ -78,9 +79,6 @@ class HomeController extends Controller
             'businesses'=>$businesses,'testimonials'=>$testimonials];
         return view('stores',$dataView);
     }
-    public function paymentProcessing(){
-
-    }
     public function paymentLink(){
         $generalSettings = GeneralSettings::where('id',1)->first();
         $businesses = Businesses::where('status',1)->where('isVerified',1)->inRandomOrder()->limit(5)->get();
@@ -93,21 +91,32 @@ class HomeController extends Controller
 
     }
     public function contact(){
-
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $businesses = Businesses::where('status',1)->where('isVerified',1)->inRandomOrder()->limit(5)->get();
+        $dataView=['web'=>$generalSettings,'pageName'=>$generalSettings->siteName.' Contact page',
+            'slogan'=>'A Quick Help Desk' ,];
+        return view('contact',$dataView);
     }
     public function pricing(){
-
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $businesses = Businesses::where('status',1)->where('isVerified',1)->inRandomOrder()->limit(5)->get();
+        $currencies = CurrencyAccepted::where('status',1)->get();
+        $dataView=['web'=>$generalSettings,'pageName'=>$generalSettings->siteName.' Pricing page',
+            'slogan'=>'Pricing','currencies'=>$currencies];
+        return view('pricing',$dataView);
     }
     public function terms(){
-
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $businesses = Businesses::where('status',1)->where('isVerified',1)->inRandomOrder()->limit(5)->get();
+        $dataView=['web'=>$generalSettings,'pageName'=>$generalSettings->siteName.' Terms and Conditions',
+            'slogan'=>'Merchants and Buyers' ,];
+        return view('terms',$dataView);
     }
     public function privacy(){
-
-    }
-    public function developers(){
-
-    }
-    public function supportedEscrows(){
-
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $businesses = Businesses::where('status',1)->where('isVerified',1)->inRandomOrder()->limit(5)->get();
+        $dataView=['web'=>$generalSettings,'pageName'=>$generalSettings->siteName.' Privacy Policy',
+            'slogan'=>'How we store your data' ,];
+        return view('privacy',$dataView);
     }
 }

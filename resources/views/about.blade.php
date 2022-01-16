@@ -385,12 +385,13 @@
                     <h2>Supporting your customers on the go with our mobile app</h2>
 
                     <div class="btn-box">
+                        @if(!empty($web->iphoneLink))
                         <a href="{{$web->iphoneLink}}" class="apple-store-btn" target="_blank">
                             <img src="{{ asset('home/img/applestore.png')}}" alt="image">
                             Download on the
                             <span>Apple Store</span>
                         </a>
-
+                        @endif
                         <a href="{{$web->androidLink}}" class="play-store-btn">
                             <img src="{{ asset('home/img/playstore.png')}}" alt="image">
                             Get it on

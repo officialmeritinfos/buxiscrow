@@ -128,8 +128,8 @@
                             <div class="form-group">
                                 <label class="form-label">Full Name</label>
                                 @if($user->hasBvn==1)
-                                    <input type="text" class="form-control" placeholder="Full Name" disabled
-                                           value="{{$user->name}}">
+                                    <input type="text" class="form-control" placeholder="Full Name" readonly
+                                           value="{{$user->name}}" name="name">
                                 @else
                                     <input type="text" class="form-control"
                                            placeholder="Full Name"  name="name" value="{{$user->name}}">
@@ -249,7 +249,68 @@
             </div>
         </div>
     </div>
-    <div class="col-xl-6 col-lg-6 mx-auto">
+    <div class="col-xl-8 col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Edit Security Details</div>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{url('merchant/settings/update_security')}}"
+                      id="updateSecurity">
+                    @csrf
+                    <div class="card-title font-weight-bold">Security And Account Notification:</div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Two Factor Authentication</label>
+                                <select class="form-control nice-select" name="twoWay">
+                                    <option value="">Select Option</option>
+                                    @if($user->twoWay == 1)
+                                        <option value="1" selected>ON[Selected] </option>
+                                        <option value="2">OFF</option>
+                                    @else
+                                        <option value="1" >ON </option>
+                                        <option value="2" selected>OFF [Selected]</option>
+                                    @endif
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Receive Notifications</label>
+                                <select class="form-control nice-select"  name="notification">
+                                    <option value="">Select Option</option>
+                                    @if($security->account_activity == 1)
+                                        <option value="1" selected>ON[Selected] </option>
+                                        <option value="2">OFF</option>
+                                    @else
+                                        <option value="1" >ON </option>
+                                        <option value="2" selected>OFF[Selected]</option>
+                                    @endif
+                                </select>
+                            </div>
+                        </div>
+
+                        @if($user->setPin ==1)
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label">Account Pin</label>
+                                    <input type="password" class="form-control" name="pin" minlength="6" max="6">
+                                </div>
+                            </div>
+                            <div class="card-footer text-center">
+                                <button type="submit" class="btn btn-primary" id="update_security">Update</button>
+                                @else
+                                    <div class="card-footer text-center">
+                                        <p class="text-danger">You need to set your account Pin First to proceed</p>
+                                        <p><button class="btn btn-primary" type="button" data-toggle="modal" data-target="#set_pin">Set Pin</button> </p>
+                                        @endif
+                                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-8 col-lg-8 mx-auto">
         <div class="card">
             <div class="card-header">
                 <div class="card-title">Theme & Account</div>

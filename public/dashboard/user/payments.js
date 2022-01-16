@@ -45,7 +45,7 @@ var paymentRequests = function (){
                     }
                     if(data.success)
                     {
-                        if (data.data.c === 1){
+                        if (data.data.c == 1){
                             $('#add_money').modal('hide');
                             $('#deposit_method').modal('hide');
                             $('#show_card_form').modal('show');
@@ -350,12 +350,19 @@ var paymentRequests = function (){
                             });
                         },
                         onclose: function() {
-                            location.reload();
+                            toastr.options = {
+                                "closeButton": true,
+                                "progressBar": true
+                            }
+                            toastr.error('Funding cancelled');
+                            //timeout
+                            setTimeout(function () {
+                                location.reload();
+                            }, 5000);
                         },
                         customizations: {
                             title: "Account Funding",
                             description: "Payment for item",
-                            logo: 'http://127.0.0.1:8000/home/img/favicon.png',
                         },
                     });
                 }

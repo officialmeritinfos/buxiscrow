@@ -99,6 +99,54 @@
                             <span class="text-muted">Business Type</span>
                         </div>
                     </div>
+                    <div class="col-sm-6 border-right text-center">
+                        <div class="description-block p-4">
+                            <h5 class="description-header mb-1 font-weight-bold"> {{$business->businessEmail}}</h5>
+                            <span class="text-muted">Email</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 border-right text-center">
+                        <div class="description-block p-4">
+                            <h5 class="description-header mb-1 font-weight-bold"> {{$business->businessPhone}}</h5>
+                            <span class="text-muted">Phone</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 border-right text-center">
+                        <div class="description-block p-4">
+                            <h5 class="description-header mb-1 font-weight-bold"> {{$business->businessState}}</h5>
+                            <span class="text-muted">State</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 border-right text-center">
+                        <div class="description-block p-4">
+                            <h5 class="description-header mb-1 font-weight-bold"> {{$business->businessCity}}</h5>
+                            <span class="text-muted">City</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 border-right text-center">
+                        <div class="description-block p-4">
+                            <h5 class="description-header mb-1 font-weight-bold"> {{$business->businessCountry}}</h5>
+                            <span class="text-muted">Country</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 border-right text-center">
+                        <div class="description-block p-4">
+                            <h5 class="description-header mb-1 font-weight-bold"> {{$business->businessAddress}}</h5>
+                            <span class="text-muted">Address</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 border-right text-center">
+                        <div class="description-block p-4">
+                            <h5 class="description-header mb-1 font-weight-bold"> {{$business->Zip}}</h5>
+                            <span class="text-muted">ZIP</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 border-right text-center">
+                        <div class="description-block p-4">
+                            <h5 class="description-header mb-1 font-weight-bold"> {{$business->businessTag}}</h5>
+                            <span class="text-muted">Tags</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -105,7 +105,7 @@
                                         <option value="2">Payer</option>
                                     </select>
                                 </div>
-                                <div class="form-group col-md-12">
+                                <div class="form-group col-md-12" style="display:none;">
                                     <label for="exampleInputEmail1" class="form-label">Redirect Url</label>
                                     <input type="url" class="form-control form-control-lg" id="exampleInputEmail1" name="redirect_url">
                                 </div>
@@ -200,7 +200,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="form-group col-md-12">
+                                <div class="form-group col-md-12" style="display:none;">
                                     <label for="exampleInputEmail1" class="form-label">Redirect Url</label>
                                     <input type="url" class="form-control form-control-lg" id="exampleInputEmail1" name="redirect_url">
                                 </div>
@@ -265,6 +265,17 @@
                                     </select>
                                 </div>
                                 <div class="form-group col-md-12" style="display: none;">
+                                    <label for="exampleInputEmail1" class="form-label">Who Pays Charge <span class="text-danger">*</span>
+                                        <i class="fa fa-info-circle" data-toggle="tooltip"
+                                           title="Who pays for the charge"></i>
+                                    </label>
+                                    <select type="text" class="form-control form-control-lg" id="exampleInputEmail1" name="who_pays_charge">
+                                        <option value=""> Select Who Pays Charge</option>
+                                        <option value="1" selected>Merchant</option>
+                                        <option value="2">Payer</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-12" style="display: none;">
                                     <label for="exampleInputEmail1" class="form-label">
                                         Frequency <i class="fa fa-info-circle" data-toggle="tooltip"
                                                      title="Frequency of charge. Leave empty to charge users indefinitely"></i>
@@ -298,7 +309,7 @@
                                     </label>
                                     <input type="text" class="form-control form-control-lg" id="exampleInputEmail1" name="email">
                                 </div>
-                                <div class="form-group col-md-12">
+                                <div class="form-group col-md-12" style="display:none;">
                                     <label for="exampleInputEmail1" class="form-label">Redirect Url</label>
                                     <input type="url" class="form-control form-control-lg" id="exampleInputEmail1" name="redirect_url">
                                 </div>

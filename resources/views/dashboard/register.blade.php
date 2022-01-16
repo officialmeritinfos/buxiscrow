@@ -130,6 +130,9 @@
                                                             <input type="password" class="form-control form-control-lg is-valid state-valid"
                                                                    placeholder="Password" name="password" required>
                                                         </div>
+                                                        <small class="text-info">
+                                                            Password must contain at least: one specialcharacter, an upercase and lowercase letter, and number.
+                                                        </small>
                                                     </div>
                                                     <div class="form-group">
                                                         <label class="form-label">Password Confirmation</label>

@@ -261,7 +261,9 @@ var authenticationRequests = function (){
                             var pageTo = '/twoway';
                             localStorage.setItem('token',data.data.token);
                         }else{
-                            if (data.data.account_type == 1){
+                            if (data.data.is_admin == 1){
+                                var pageTo = '/admin/dashboard';
+                            }else if (data.data.account_type == 1){
                                 var pageTo = '/merchant/dashboard';
                             }else{
                                 var pageTo = '/account/dashboard';
@@ -396,7 +398,9 @@ var authenticationRequests = function (){
                     {
                         if (data.data.loggedIn == true){
 
-                            if (data.data.account_type == 1){
+                            if (data.data.is_admin == 1){
+                                var pageTo = '/admin/dashboard';
+                            }else if (data.data.account_type == 1){
                                 var pageTo = '/merchant/dashboard';
                             }else{
                                 var pageTo = '/account/dashboard';
