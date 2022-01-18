@@ -47,7 +47,7 @@ class Dashboard extends Controller
             $update = User::where('id',$user->id)->update($dataUser);
             if (!empty($update)){
                 $details = 'Your '.config('app.name').' Transaction pin was successfully set.' ;
-                $dataActivity = ['user' => $user->id, 'activity' => 'Security update', 'details' => $details,
+                $dataActivity = ['merchant' => $user->id, 'activity' => 'Security update', 'details' => $details,
                     'agent_ip' => $request->ip()];
                 event(new AccountActivity($user, $dataActivity));
 
