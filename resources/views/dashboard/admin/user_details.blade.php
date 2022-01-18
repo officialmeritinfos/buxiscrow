@@ -60,6 +60,26 @@
                             Increase BA Limit
                         </button>
                     </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-sm btn-outline-primary" style="margin-bottom:4px;"
+                                data-toggle="modal" data-target="#fundIRefBal">
+                            Fund IR Bal
+                        </button>
+                        <button class="btn btn-sm btn-outline-info" style="margin-bottom:4px;"
+                                data-toggle="modal" data-target="#fundIAvaBal">
+                            Fund IA Balance
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-sm btn-outline-primary" style="margin-bottom:4px;"
+                                data-toggle="modal" data-target="#fundBRefBal">
+                            Fund BR Bal
+                        </button>
+                        <button class="btn btn-sm btn-outline-info" style="margin-bottom:4px;"
+                                data-toggle="modal" data-target="#fundBAvaBal">
+                            Fund BA Balance
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="card-body text-center">
@@ -70,6 +90,26 @@
                             <a href="{{url('admin/user/view_documents/'.$users->id)}}">
                                View
                             </a>
+                        </p>
+                        <p>
+                            <a href="{{url('admin/user/verify_account/'.$users->id.'/1')}}"
+                                class="btn btn-success btn-sm"> Mark Verified</a>
+                            <a href="{{url('admin/user/verify_account/'.$users->id.'/3')}}"
+                                    class="btn btn-danger btn-sm"> Reject</a>
+                        </p>
+                    @endif
+                    @if($users->isVerified ==1)
+                        <p class="text-success" style="font-size:15px;">
+                            Verification Details Submitted: Marked as verified
+                            <a href="{{url('admin/user/view_documents/'.$users->id)}}">
+                               View
+                            </a>
+                        </p>
+                        <p>
+                            <a href="{{url('admin/user/verify_account/'.$users->id.'/1')}}"
+                                class="btn btn-success btn-sm"> Mark Verified</a>
+                            <a href="{{url('admin/user/verify_account/'.$users->id.'/3')}}"
+                                    class="btn btn-danger btn-sm"> Reject</a>
                         </p>
                     @endif
                 </div>
@@ -152,7 +192,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card-footer p-0">
+            <!--<div class="card-footer p-0">
                 <div class="row">
                     <div class="col-sm-6 text-center mx-auto">
                         <div class="description-block p-4">
@@ -162,7 +202,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>-->
         </div>
     </div>
 

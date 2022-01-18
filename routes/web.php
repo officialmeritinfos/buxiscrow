@@ -261,6 +261,97 @@ Route::middleware(['webTwoWay','auth'])->group( function () {
         Route::get('users/deactivate_withdrawal/{ref}',[\App\Http\Controllers\Web\Admin\Users::class,'deactivateSend']);
         Route::get('users/activate_notifications/{ref}',[\App\Http\Controllers\Web\Admin\Users::class,'activateNotification']);
         Route::get('users/deactivate_notifications/{ref}',[\App\Http\Controllers\Web\Admin\Users::class,'deactivateNotification']);
+        Route::post('user/increase_i_trans_limit',[\App\Http\Controllers\Web\Admin\Users::class,'increaseIndividualTransactionLimit']);
+        Route::post('user/increase_i_account_limit',[\App\Http\Controllers\Web\Admin\Users::class,'increaseIndividualAccountLimit']);
+        Route::post('user/increase_b_trans_limit',[\App\Http\Controllers\Web\Admin\Users::class,'increaseBusinessTransactionLimit']);
+        Route::post('user/increase_b_account_limit',[\App\Http\Controllers\Web\Admin\Users::class,'increaseBusinessAccountLimit']);
+        Route::get('user/view_documents/{id}',[\App\Http\Controllers\Web\Admin\Users::class,'viewDocuments']);
+        Route::get('user/verify_account/{id}/{status}',[\App\Http\Controllers\Web\Admin\Users::class,'updateVerificationStatus']);
+        Route::post('user/fund_i_ref_bal',[\App\Http\Controllers\Web\Admin\Users::class,'fundIRefBal']);
+        Route::post('user/fund_b_ref_bal',[\App\Http\Controllers\Web\Admin\Users::class,'fundBRefBal']);
+        Route::post('user/fund_b_ava_bal',[\App\Http\Controllers\Web\Admin\Users::class,'fundBAvaBal']);
+        Route::post('user/fund_i_ava_bal',[\App\Http\Controllers\Web\Admin\Users::class,'fundIAvaBal']);
+        /*================= ESCROW ROUTES ======================================*/
+        Route::get('escrows',[\App\Http\Controllers\Web\Admin\Escrows::class,'index']);
+        Route::get('escrows/{ref}/details',[\App\Http\Controllers\Web\Admin\Escrows::class,'details']);
+        /*================= TRANSACTION ROUTES ======================================*/
+        Route::get('transactions',[\App\Http\Controllers\Web\Admin\Transactions::class,'index']);
+        Route::get('transactions/{ref}/details',[\App\Http\Controllers\Web\Admin\Transactions::class,'details'])
+            ->where('ref','[A-Za-z0-9_]+');
+        /*================= ACCOUNT FUNDING ROUTES ======================================*/
+        Route::get('account_funding',[\App\Http\Controllers\Web\Admin\Transactions::class,'accountFundings']);
+        Route::get('send_money_transactions',[\App\Http\Controllers\Web\Admin\Transactions::class,'sendMoney']);
+        /*================= PAYMENT FUNDING ROUTES ======================================*/
+        Route::get('payments',[\App\Http\Controllers\Web\Admin\Payments::class,'index']);
+        Route::get('payment_link_transactions',[\App\Http\Controllers\Web\Admin\Payments::class,'paymentLinksTransactions']);
+        Route::get('payment_links',[\App\Http\Controllers\Web\Admin\Payments::class,'paymentLinksTransaction']);
+        /*================= CUSTOMERS ROUTES ======================================*/
+        Route::get('customers',[\App\Http\Controllers\Web\Admin\Customers::class,'index']);
+        Route::get('customers/{id}/details',[\App\Http\Controllers\Web\Admin\Customers::class,'details']);
+        /*================= BENEFICIARIES ROUTES ======================================*/
+        Route::get('beneficiary',[\App\Http\Controllers\Web\Admin\Beneficiary::class,'index']);
+        /*================= TRANSFERS ROUTES ======================================*/
+        Route::get('transfers',[\App\Http\Controllers\Web\Admin\Payouts::class,'index']);
+        Route::get('transfers/user/{ref}/details',[\App\Http\Controllers\Web\Admin\Payouts::class,'userPayoutDetails']);
+        /*================= REFERRALS ROUTES ======================================*/
+        Route::get('referrals',[\App\Http\Controllers\Web\Admin\Referrals::class,'index']);
+        Route::get('referrals/earnings',[\App\Http\Controllers\Web\Admin\Referrals::class,'earnings']);
+        /*======================= ACCOUNT SETTING ROUTE ==========================================*/
+        Route::get('settings',[\App\Http\Controllers\Web\Admin\Settings::class,'index']);
+        Route::post('settings/profile_change',[\App\Http\Controllers\Web\Admin\Settings::class,'updateProfilePic']);
+        Route::post('settings/change_password',[\App\Http\Controllers\Web\Admin\Settings::class,'updatePassword']);
+        Route::post('settings/update_profile',[\App\Http\Controllers\Web\Admin\Settings::class,'updateProfile']);
+        Route::post('settings/change_account',[\App\Http\Controllers\Web\Admin\Settings::class,'switchAccount']);
+        Route::post('settings/update_security',[\App\Http\Controllers\Web\Admin\Settings::class,'updateSecurity']);
+        /*======================= SYSTEM REVENUE ROUTE ==========================================*/
+        Route::get('account_wallet',[\App\Http\Controllers\Web\Admin\Revenues::class,'index']);
+        Route::get('revenues/{code}/details',[\App\Http\Controllers\Web\Admin\Revenues::class,'details']);
+        /*======================= SYSTEM SETTINGSs ROUTE ==========================================*/
+        Route::get('more',[\App\Http\Controllers\Web\Admin\More::class,'index']);
+        /*======================= FAQ CATEGORY SETTINGSs ROUTE ==========================================*/
+        Route::get('faq_category',[\App\Http\Controllers\Web\Admin\Faq::class,'index']);
+        Route::get('faq_category/edit/{id}',[\App\Http\Controllers\Web\Admin\Faq::class,'editCategory']);
+        Route::post('faq_category/edit',[\App\Http\Controllers\Web\Admin\Faq::class,'doEditCategory']);
+        Route::get('faq_category/delete/{id}',[\App\Http\Controllers\Web\Admin\Faq::class,'doDeleteCategory']);
+        Route::post('faq_category/addcategory',[\App\Http\Controllers\Web\Admin\Faq::class,'doAddCategory']);
+        /*======================= FAQ  SETTINGSs ROUTE ==========================================*/
+        Route::get('faqs',[\App\Http\Controllers\Web\Admin\Faq::class,'faqs']);
+        Route::get('faqs/edit/{id}',[\App\Http\Controllers\Web\Admin\Faq::class,'editFaq']);
+        Route::post('faqs/edit',[\App\Http\Controllers\Web\Admin\Faq::class,'doEditFaq']);
+        Route::get('faqs/delete/{id}',[\App\Http\Controllers\Web\Admin\Faq::class,'doDeleteFaq']);
+        Route::post('faqs/add',[\App\Http\Controllers\Web\Admin\Faq::class,'doAddFaq']);
+        /*======================= ACCEPTED CURRENCY  SETTINGSs ROUTE ==========================================*/
+        Route::get('currency',[\App\Http\Controllers\Web\Admin\Currency::class,'index']);
+        Route::get('currency/edit/{id}',[\App\Http\Controllers\Web\Admin\Currency::class,'edit']);
+        Route::post('currency/edit',[\App\Http\Controllers\Web\Admin\Currency::class,'doEdit']);
+        Route::post('currency/add',[\App\Http\Controllers\Web\Admin\Currency::class,'doAdd']);
+        /*======================= BUSINESS TYPE  SETTINGSs ROUTE ==========================================*/
+        Route::get('business_type',[\App\Http\Controllers\Web\Admin\BusinessType::class,'index']);
+        Route::get('business_type/edit/{id}',[\App\Http\Controllers\Web\Admin\BusinessType::class,'edit']);
+        Route::post('business_type/edit',[\App\Http\Controllers\Web\Admin\BusinessType::class,'doEdit']);
+        Route::post('business_type/add',[\App\Http\Controllers\Web\Admin\BusinessType::class,'doAdd']);
+        Route::get('business_type/delete/{id}',[\App\Http\Controllers\Web\Admin\BusinessType::class,'doDelete']);
+        /*======================= REPORT TYPE  SETTINGSs ROUTE ==========================================*/
+        Route::get('report_type',[\App\Http\Controllers\Web\Admin\ReportTypes::class,'index']);
+        Route::get('report_type/edit/{id}',[\App\Http\Controllers\Web\Admin\ReportTypes::class,'edit']);
+        Route::post('report_type/edit',[\App\Http\Controllers\Web\Admin\ReportTypes::class,'doEdit']);
+        Route::post('report_type/add',[\App\Http\Controllers\Web\Admin\ReportTypes::class,'doAdd']);
+        Route::get('report_type/delete/{id}',[\App\Http\Controllers\Web\Admin\ReportTypes::class,'doDelete']);
+        /*======================= BUSINESS CATEGORY  SETTINGSs ROUTE ==========================================*/
+        Route::get('business_category',[\App\Http\Controllers\Web\Admin\BusinessCategories::class,'index']);
+        Route::get('business_category/edit/{id}',[\App\Http\Controllers\Web\Admin\BusinessCategories::class,'edit']);
+        Route::post('business_category/edit',[\App\Http\Controllers\Web\Admin\BusinessCategories::class,'doEdit']);
+        Route::post('business_category/add',[\App\Http\Controllers\Web\Admin\BusinessCategories::class,'doAdd']);
+        Route::get('business_category/delete/{id}',[\App\Http\Controllers\Web\Admin\BusinessCategories::class,'doDelete']);
+        /*======================= BUSINESS SUBCATEGORY  SETTINGSs ROUTE ==========================================*/
+        Route::get('business_subcategory',[\App\Http\Controllers\Web\Admin\BusinessSubCategories::class,'index']);
+        Route::get('business_subcategory/edit/{id}',[\App\Http\Controllers\Web\Admin\BusinessSubCategories::class,'edit']);
+        Route::post('business_subcategory/edit',[\App\Http\Controllers\Web\Admin\BusinessSubCategories::class,'doEdit']);
+        Route::post('business_subcategory/add',[\App\Http\Controllers\Web\Admin\BusinessSubCategories::class,'doAdd']);
+        Route::get('business_subcategory/delete/{id}',[\App\Http\Controllers\Web\Admin\BusinessSubCategories::class,'doDelete']);
+        /*======================= GENERALS  SETTINGSs ROUTE ==========================================*/
+        Route::get('general_settings',[\App\Http\Controllers\Web\Admin\WebsiteSettings::class,'index']);
+        Route::post('general_settings/edit',[\App\Http\Controllers\Web\Admin\WebsiteSettings::class,'doEdit']);
 
         Route::get('logout',[AuthController::class,'Logout']);
     });

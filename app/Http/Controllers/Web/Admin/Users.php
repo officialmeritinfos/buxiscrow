@@ -10,9 +10,12 @@ use App\Models\MerchantBalances;
 use App\Models\MerchantLogins;
 use App\Models\User;
 use App\Models\UserBalances;
+use App\Models\UserDocument;
 use App\Models\UserNotificationSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class Users extends Controller
 {
@@ -172,7 +175,7 @@ class Users extends Controller
             information, and how to undo this action.
             <br> Thanks for using '.config('app.name') ;
             event(new EscrowNotification($users, $message, 'Transfer Deactivation on '.config('app.name')));
-            return back()->with('success','2FA successfully deactivated');
+            return back()->with('success','Transfer successfully deactivated');
         }
         return back()->with('error','An error occurred');
     }
@@ -254,5 +257,275 @@ class Users extends Controller
             return back()->with('success','Account notification successfully deactivated');
         }
         return back()->with('error','An error occurred');
+    }
+    public function increaseIndividualTransactionLimit(Request $request)
+    {
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        //let's check the where the account will be credited
+        $validator = Validator::make($request->all(),
+            [
+                'amount'=>['required','numeric',],
+                'id'=>['required'],
+                'balance'=>['required','alpha']
+            ],
+            ['required'  =>':attribute is required'],
+            ['id'   =>'User','balance'=>'Balance']
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return back()->with('error',$validator->errors());
+        }
+        $input = $request->input();
+        $id= $input['id'];
+        $users = User::where('id',$id)->first();
+        $dataNewLimit = [
+            'TransactionLimit'=>$input['amount']
+        ];
+        //update record
+        $update = UserBalances::where('currency',$input['balance'])->where('user',$users->id)->update($dataNewLimit);
+        if ($update) {
+            return back()->with('success','User Individual Transaction Limit successfully updated');
+        }
+    }
+    public function increaseIndividualAccountLimit(Request $request)
+    {
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        //let's check the where the account will be credited
+        $validator = Validator::make($request->all(),
+            [
+                'amount'=>['required','numeric',],
+                'id'=>['required'],
+                'balance'=>['required','alpha']
+            ],
+            ['required'  =>':attribute is required'],
+            ['id'   =>'User','balance'=>'Balance']
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return back()->with('error',$validator->errors());
+        }
+        $input = $request->input();
+        $id= $input['id'];
+        $users = User::where('id',$id)->first();
+        $dataNewLimit = [
+            'AccountLimit'=>$input['amount']
+        ];
+        //update record
+        $update = UserBalances::where('currency',$input['balance'])->where('user',$users->id)->update($dataNewLimit);
+        if ($update) {
+            return back()->with('success','User Individual Account Limit successfully updated');
+        }
+    }
+    public function increaseBusinessTransactionLimit(Request $request)
+    {
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        //let's check the where the account will be credited
+        $validator = Validator::make($request->all(),
+            [
+                'amount'=>['required','numeric',],
+                'id'=>['required'],
+                'balance'=>['required','alpha']
+            ],
+            ['required'  =>':attribute is required'],
+            ['id'   =>'User','balance'=>'Balance']
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return back()->with('error',$validator->errors());
+        }
+        $input = $request->input();
+        $id= $input['id'];
+        $users = User::where('id',$id)->first();
+        $dataNewLimit = [
+            'TransactionLimit'=>$input['amount']
+        ];
+        //update record
+        $update = MerchantBalances::where('currency',$input['balance'])->where('merchant',$users->id)->update($dataNewLimit);
+        if ($update) {
+            return back()->with('success','User Business Transaction Limit successfully updated');
+        }
+    }
+    public function increaseBusinessAccountLimit(Request $request)
+    {
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        //let's check the where the account will be credited
+        $validator = Validator::make($request->all(),
+            [
+                'amount'=>['required','numeric',],
+                'id'=>['required'],
+                'balance'=>['required','alpha']
+            ],
+            ['required'  =>':attribute is required'],
+            ['id'   =>'User','balance'=>'Balance']
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return back()->with('error',$validator->errors());
+        }
+        $input = $request->input();
+        $id= $input['id'];
+        $users = User::where('id',$id)->first();
+        $dataNewLimit = [
+            'AccountLimit'=>$input['amount']
+        ];
+        //update record
+        $update = MerchantBalances::where('currency',$input['balance'])->where('merchant',$users->id)->update($dataNewLimit);
+        if ($update) {
+            return back()->with('success','User Business Account Limit successfully updated');
+        }
+    }
+    public function viewDocuments($id)
+    {
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $user=Auth::user();
+        $users = User::where('id',$id)->first();
+        if (empty($users)){
+            return back()->with('error','User account not found');
+        }
+        $documents = UserDocument::where('user',$users->id)->first();
+        $dataView = ['web' => $generalSettings, 'pageName' => 'User Verification', 'slogan' => '- Making safer transactions',
+            'user' => $user,'document'=>$documents,'users'=>$users];
+        return view('dashboard.admin.user_verification', $dataView);
+    }
+    public function updateVerificationStatus($ref,$status){
+        $user = Auth::user();
+        $userExists = User::where('id',$ref)->first();
+        if (empty($userExists)){
+            return back()->with('error','User not found');
+        }
+        $status = $status;
+        $dataUpdate=[
+            'isVerified'=>$status
+        ];
+        $update = User::where('id',$userExists->id)->update($dataUpdate);
+        if ($update){
+            //Send Notification to User
+            $message = 'There is an update on the verification status of your account.
+            Login to your account to view this update.' ;
+            event(new EscrowNotification($userExists, $message, 'Account Verification Update'));
+            return back()->with('success','Verification status updated');
+        }
+        return back()->with('error','Something went wrong');
+    }
+    public function fundIRefBal(Request $request)
+    {
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        //let's check the where the account will be credited
+        $validator = Validator::make($request->all(),
+            [
+                'amount'=>['required','numeric',],
+                'id'=>['required'],
+                'balance'=>['required','alpha']
+            ],
+            ['required'  =>':attribute is required'],
+            ['id'   =>'User','balance'=>'Balance']
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return back()->with('error',$validator->errors());
+        }
+        $input = $request->input();
+        $id= $input['id'];
+        $users = User::where('id',$id)->first();
+        $balance = UserBalances::where('currency',$input['balance'])->where('user',$users->id)->first();
+        $newBalance = $balance->referralBalance+$input['amount'];
+        $dataBalance = [
+            'referralBalance'=>$newBalance
+        ];
+        //update record
+        $update = UserBalances::where('currency',$input['balance'])->where('user',$users->id)->update($dataBalance);
+        if ($update) {
+            return back()->with('success','Individual Referral Balance Topped Up successfully');
+        }
+    }
+    public function fundIAvaBal(Request $request)
+    {
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        //let's check the where the account will be credited
+        $validator = Validator::make($request->all(),
+            [
+                'amount'=>['required','numeric',],
+                'id'=>['required'],
+                'balance'=>['required','alpha']
+            ],
+            ['required'  =>':attribute is required'],
+            ['id'   =>'User','balance'=>'Balance']
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return back()->with('error',$validator->errors());
+        }
+        $input = $request->input();
+        $id= $input['id'];
+        $users = User::where('id',$id)->first();
+        $balance = UserBalances::where('currency',$input['balance'])->where('user',$users->id)->first();
+        $newBalance = $balance->availableBalance+$input['amount'];
+        $dataBalance = [
+            'availableBalance'=>$newBalance
+        ];
+        //update record
+        $update = UserBalances::where('currency',$input['balance'])->where('user',$users->id)->update($dataBalance);
+        if ($update) {
+            return back()->with('success','Individual Available Balance Topped Up successfully');
+        }
+    }
+    public function fundBRefBal(Request $request)
+    {
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        //let's check the where the account will be credited
+        $validator = Validator::make($request->all(),
+            [
+                'amount'=>['required','numeric',],
+                'id'=>['required'],
+                'balance'=>['required','alpha']
+            ],
+            ['required'  =>':attribute is required'],
+            ['id'   =>'User','balance'=>'Balance']
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return back()->with('error',$validator->errors());
+        }
+        $input = $request->input();
+        $id= $input['id'];
+        $users = User::where('id',$id)->first();
+        $balance = MerchantBalances::where('currency',$input['balance'])->where('merchant',$users->id)->first();
+        $newBalance = $balance->referralBalance+$input['amount'];
+        $dataBalance = [
+            'referralBalance'=>$newBalance
+        ];
+        //update record
+        $update = MerchantBalances::where('currency',$input['balance'])->where('merchant',$users->id)->update($dataBalance);
+        if ($update) {
+            return back()->with('success','Business Referral Balance Topped Up successfully');
+        }
+    }
+    public function fundBAvaBal(Request $request)
+    {
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        //let's check the where the account will be credited
+        $validator = Validator::make($request->all(),
+            [
+                'amount'=>['required','numeric',],
+                'id'=>['required'],
+                'balance'=>['required','alpha']
+            ],
+            ['required'  =>':attribute is required'],
+            ['id'   =>'User','balance'=>'Balance']
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return back()->with('error',$validator->errors());
+        }
+        $input = $request->input();
+        $id= $input['id'];
+        $users = User::where('id',$id)->first();
+        $balance = MerchantBalances::where('currency',$input['balance'])->where('merchant',$users->id)->first();
+        $newBalance = $balance->availableBalance+$input['amount'];
+        $dataBalance = [
+            'availableBalance'=>$newBalance
+        ];
+        //update record
+        $update = MerchantBalances::where('currency',$input['balance'])->where('merchant',$users->id)->update($dataBalance);
+        if ($update) {
+            return back()->with('success','Business Available Balance Topped Up successfully');
+        }
+    }
+    public function userId($id)
+    {
+        $user = User::where('id',$id)->first();
+        return $user;
     }
 }

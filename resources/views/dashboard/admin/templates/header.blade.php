@@ -202,14 +202,14 @@
                         <span class="side-menu__label">Referrals</span>
                     </a>
                 </li><br>
-                <li class="slide" data-placement="right" data-toggle="tooltip" title="Activities">
+                <!--<li class="slide" data-placement="right" data-toggle="tooltip" title="Activities">
                     <a class="side-menu__item"  href="{{url('admin/activities')}}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-file-spreadsheet" viewBox="0 0 20 20">
                             <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v4h10V2a1 1 0 0 0-1-1H4zm9 6h-3v2h3V7zm0 3h-3v2h3v-2zm0 3h-3v2h2a1 1 0 0 0 1-1v-1zm-4 2v-2H6v2h3zm-4 0v-2H3v1a1 1 0 0 0 1 1h1zm-2-3h2v-2H3v2zm0-3h2V7H3v2zm3-2v2h3V7H6zm3 3H6v2h3v-2z"/>
                         </svg>
                         <span class="side-menu__label">Activities</span>
                     </a>
-                </li><br>
+                </li><br>-->
                 <li class="slide" data-placement="right" data-toggle="tooltip" title="Settings">
                     <a class="side-menu__item"  href="{{url('admin/settings')}}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-gear-wide" viewBox="0 0 20 20">
@@ -268,7 +268,7 @@
                                 </div>
                             </div>
                             <div class="d-flex order-lg-2 ml-auto">
-                                <div class="dropdown  profile-dropdown">
+                                <!--<div class="dropdown  profile-dropdown">
                                     <a class="nav-link icon p-0" data-toggle="dropdown">
                                         <svg class="header-icon" x="1008" y="1248" viewBox="0 0 24 24"  height="100%" width="100%"
                                              preserveAspectRatio="xMidYMid meet" focusable="false">
@@ -291,7 +291,7 @@
                                             Payout
                                         </a>
                                     </div>
-                                </div>
+                                </div>-->
                                 <div class="dropdown   header-fullscreen pl-5" >
                                     <a  class="nav-link icon full-screen-link p-0"  id="fullscreen-button">
                                         <svg class="header-icon" x="1008" y="1248" viewBox="0 0 24 24"  height="100%" width="100%" preserveAspectRatio="xMidYMid meet" focusable="false"><path d="M7,14 L5,14 L5,19 L10,19 L10,17 L7,17 L7,14 Z M5,10 L7,10 L7,7 L10,7 L10,5 L5,5 L5,10 Z M17,17 L14,17 L14,19 L19,19 L19,14 L17,14 L17,17 Z M14,5 L14,7 L17,7 L17,10 L19,10 L19,5 L14,5 Z"></path></svg>

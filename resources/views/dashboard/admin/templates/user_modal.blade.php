@@ -10,12 +10,13 @@
             </div>
             <div class="modal-body text-left p-4" >
                 <form method="POST" action="{{url('admin/user/increase_i_account_limit')}}">
+                    @csrf
                     <div class="row">
                         <div class="col-sm-12 col-md-12 text-center">
                             <div class="form-group">
                                 <label class="form-label">New Limit <span class="text-red">*</span></label>
                                 <input type="text" class="form-control form-control-lg " placeholder="Amount"
-                                       name="amount">
+                                       name="amount" id="amount">
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-12 text-center" style="display: none;">
@@ -60,12 +61,13 @@
             </div>
             <div class="modal-body text-left p-4" >
                 <form method="POST" action="{{url('admin/user/increase_b_account_limit')}}">
+                    @csrf
                     <div class="row">
                         <div class="col-sm-12 col-md-12 text-center">
                             <div class="form-group">
                                 <label class="form-label">New Limit <span class="text-red">*</span></label>
                                 <input type="text" class="form-control form-control-lg " placeholder="Amount"
-                                       name="amount">
+                                       name="amount" id="amount">
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-12 text-center" style="display: none;">
@@ -110,12 +112,13 @@
             </div>
             <div class="modal-body text-left p-4" >
                 <form method="POST" action="{{url('admin/user/increase_b_trans_limit')}}">
+                    @csrf
                     <div class="row">
                         <div class="col-sm-12 col-md-12 text-center">
                             <div class="form-group">
                                 <label class="form-label">New Limit <span class="text-red">*</span></label>
                                 <input type="text" class="form-control form-control-lg " placeholder="Amount"
-                                       name="amount">
+                                       name="amount" id="amount">
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-12 text-center" style="display: none;">
@@ -160,12 +163,13 @@
             </div>
             <div class="modal-body text-left p-4" >
                 <form method="POST" action="{{url('admin/user/increase_i_trans_limit')}}">
+                    @csrf
                     <div class="row">
                         <div class="col-sm-12 col-md-12 text-center">
                             <div class="form-group">
                                 <label class="form-label">New Limit <span class="text-red">*</span></label>
                                 <input type="text" class="form-control form-control-lg " placeholder="Amount"
-                                       name="amount">
+                                       name="amount" id="amount">
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-12 text-center" style="display: none;">
@@ -189,6 +193,213 @@
                             <div class="form-group">
                                 <button type="submit" class="btn  btn-md btn-info">
                                     <i class="fa fa-arrow-circle-o-up"></i> Increase</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div></div>
+    </div>
+</div>
+
+<!-- Fund User Individual Referral Balance-->
+<div class="modal" id="fundIRefBal">
+    <div class="modal-dialog modal-dialog-centered text-center " role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h1 class="modal-title">Fund {{$users->name}} Individual Referral Balance</h1>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body text-left p-4" >
+                <form method="POST" action="{{url('admin/user/fund_i_ref_bal')}}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <label class="form-label">New Limit <span class="text-red">*</span></label>
+                                <input type="text" class="form-control form-control-lg " placeholder="Amount"
+                                       name="amount" id="amount">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center" style="display: none;">
+                            <div class="form-group">
+                                <label class="form-label">ID <span class="text-red">*</span></label>
+                                <input type="text" class="form-control form-control-lg" name="id" value="{{$users->id}}">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <label class="form-label">Balance <span class="text-red">*</span></label>
+                                <select type="text" class="form-control form-control-lg" name="balance">
+                                    <option value="">Select a Balance</option>
+                                    @foreach($merchantBalances as $balss)
+                                        <option value="{{$balss->code}}">{{$balss->code}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <button type="submit" class="btn  btn-md btn-info">
+                                    <i class="fa fa-arrow-circle-o-up"></i> Topup</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div></div>
+    </div>
+</div>
+
+<!-- Fund User Individual Available Balance-->
+<div class="modal" id="fundIAvaBal">
+    <div class="modal-dialog modal-dialog-centered text-center " role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h1 class="modal-title">Fund {{$users->name}} Individual Available Balance</h1>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body text-left p-4" >
+                <form method="POST" action="{{url('admin/user/fund_i_ava_bal')}}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <label class="form-label">New Limit <span class="text-red">*</span></label>
+                                <input type="text" class="form-control form-control-lg " placeholder="Amount"
+                                       name="amount" id="amount">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center" style="display: none;">
+                            <div class="form-group">
+                                <label class="form-label">ID <span class="text-red">*</span></label>
+                                <input type="text" class="form-control form-control-lg" name="id" value="{{$users->id}}">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <label class="form-label">Balance <span class="text-red">*</span></label>
+                                <select type="text" class="form-control form-control-lg" name="balance">
+                                    <option value="">Select a Balance</option>
+                                    @foreach($merchantBalances as $balss)
+                                        <option value="{{$balss->code}}">{{$balss->code}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <button type="submit" class="btn  btn-md btn-info">
+                                    <i class="fa fa-arrow-circle-o-up"></i> Topup</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div></div>
+    </div>
+</div>
+
+<!-- Fund User Business Available Balance-->
+<div class="modal" id="fundBAvaBal">
+    <div class="modal-dialog modal-dialog-centered text-center " role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h1 class="modal-title">Fund {{$users->name}} Business Available Balance</h1>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body text-left p-4" >
+                <form method="POST" action="{{url('admin/user/fund_b_ava_bal')}}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <label class="form-label">New Limit <span class="text-red">*</span></label>
+                                <input type="text" class="form-control form-control-lg " placeholder="Amount"
+                                       name="amount" id="amount">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center" style="display: none;">
+                            <div class="form-group">
+                                <label class="form-label">ID <span class="text-red">*</span></label>
+                                <input type="text" class="form-control form-control-lg" name="id" value="{{$users->id}}">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <label class="form-label">Balance <span class="text-red">*</span></label>
+                                <select type="text" class="form-control form-control-lg" name="balance">
+                                    <option value="">Select a Balance</option>
+                                    @foreach($merchantBalances as $balss)
+                                        <option value="{{$balss->code}}">{{$balss->code}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <button type="submit" class="btn  btn-md btn-info">
+                                    <i class="fa fa-arrow-circle-o-up"></i> Topup</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div></div>
+    </div>
+</div>
+<!-- Fund User Business Referral Balance-->
+<div class="modal" id="fundBRefBal">
+    <div class="modal-dialog modal-dialog-centered text-center " role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h1 class="modal-title">Fund {{$users->name}} Business Referral Balance</h1>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body text-left p-4" >
+                <form method="POST" action="{{url('admin/user/fund_b_ref_bal')}}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <label class="form-label">New Limit <span class="text-red">*</span></label>
+                                <input type="text" class="form-control form-control-lg " placeholder="Amount"
+                                       name="amount" id="amount">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center" style="display: none;">
+                            <div class="form-group">
+                                <label class="form-label">ID <span class="text-red">*</span></label>
+                                <input type="text" class="form-control form-control-lg" name="id" value="{{$users->id}}">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <label class="form-label">Balance <span class="text-red">*</span></label>
+                                <select type="text" class="form-control form-control-lg" name="balance">
+                                    <option value="">Select a Balance</option>
+                                    @foreach($merchantBalances as $balss)
+                                        <option value="{{$balss->code}}">{{$balss->code}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 text-center">
+                            <div class="form-group">
+                                <button type="submit" class="btn  btn-md btn-info">
+                                    <i class="fa fa-arrow-circle-o-up"></i> Topup</button>
                             </div>
                         </div>
                     </div>
