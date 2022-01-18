@@ -107,6 +107,9 @@
                                 <li class="nav-item">
                                     <a href="{{url('career')}}" class="nav-link">Career</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{url('logistics')}}" class="nav-link">Available Logistics Partners</a>
+                                </li>
                             </ul>
                         </li>
 

@@ -9,6 +9,7 @@ use App\Events\AccountActivity;
 use App\Events\SendNotification;
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Controllers\Controller;
+use App\Models\BusinessApiKey;
 use App\Models\BusinessCategory;
 use App\Models\BusinessCustomers;
 use App\Models\BusinessDocuments;
@@ -187,6 +188,7 @@ class Business extends BaseController
             ->where('business',$businessExists->id)
             ->where('currency','USD')
             ->where('paymentStatus','!=', 1)->sum('amountPaid');
+        $businessApiKeys = BusinessApiKey::where('merchant',$user->id)->where('business',$businessExists->id)->first();
         $dataView=[
             'web'=>$generalSettings,'pageName'=>'Store Data','slogan'=>'- Making safer transactions','user'=>$user,
             'business'=>$businessExists,'type'=>$businessType,'category'=>$category,'subcategory'=>$subcategory,
@@ -194,7 +196,8 @@ class Business extends BaseController
             'completed_payments'=>$regular->formatNumbers($escrowPayments),
             'completed_payments_usd'=>$regular->formatNumbers($escrowPaymentsUSD),
             'pending_payments'=> $regular->formatNumbers($escrowPaymentsPending),
-            'pending_payments_usd'=> $regular->formatNumbers($escrowPaymentsPendingUSD)
+            'pending_payments_usd'=> $regular->formatNumbers($escrowPaymentsPendingUSD),
+            'apiKeys'=>$businessApiKeys
         ];
         return view('dashboard.merchant.business_details',$dataView);
     }
@@ -298,5 +301,99 @@ class Business extends BaseController
         } else {
             return $this->sendError('File Error ', ['error' => $move_certificate], '422', 'File Upload Fail');
         }
+    }
+    public function doGenerateApiKeys(Request $request)
+    {
+        $user = Auth::user();
+        $webSettings = GeneralSettings::where('id',1)->first();
+        $validator = Validator::make($request->all(),
+            [
+                'secret_key' => ['bail', 'required', 'string'],
+                'ipn_url' => ['bail', 'nullable', 'url'],
+                'allow_withdrawal' => ['bail', 'required','numeric'],
+                'pin' => ['bail', 'required','numeric','digits:6','integer'],
+                'store_ref' => ['bail', 'required','string'],
+            ],
+            ['required' => ':attribute is required'],
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return back()->with('error',$validator->errors());
+        }
+        $input = $request->input();
+        $businessExists = Businesses::where('merchant',$user->id)->where('businessRef',$input['store_ref'])->first();
+        if (empty($businessExists)){
+            return back()->with('error','Store does not belong to you.');
+        }
+        //check if business has api key
+        $hasApiKey = BusinessApiKey::where('business',$businessExists->id)->where('merchant',$user->id)->first();
+        if (!empty($hasApiKey)) {
+            return back()->with('error','API KEY has already been generated for this business. Please use the
+            regenerate option before proceeding.');
+        }
+        //generating keys
+        $secret_key = $webSettings->siteAbbr.'_SEC_'.time().mt_rand();
+        $pub_key = $webSettings->siteAbbr.'_PUB_'.time().mt_rand();
+        $dataKey=[
+            'merchant'=>$user->id,
+            'business'=>$businessExists->id,
+            'secretKey'=>Crypt::encryptString($secret_key),
+            'publicKey'=>$pub_key,
+            'allowWithdrawal'=>$input['allow_withdrawal'],
+            'hashKey'=>Crypt::encryptString($input['secret_key']),
+            'ipn_url'=>$input['ipn_url']
+        ];
+        //create
+        $create = BusinessApiKey::create($dataKey);
+        if (!empty($create)) {
+            return back()->with('success','Keys Generated');
+        }
+        return back()->with('error','Something went wrong. Try again or contact support.');
+    }
+    public function doReGenerateApiKeys(Request $request)
+    {
+        $user = Auth::user();
+        $webSettings = GeneralSettings::where('id',1)->first();
+        $validator = Validator::make($request->all(),
+            [
+                'secret_key' => ['bail', 'required', 'string'],
+                'ipn_url' => ['bail', 'nullable', 'url'],
+                'allow_withdrawal' => ['bail', 'required','numeric'],
+                'pin' => ['bail', 'required','numeric','digits:6','integer'],
+                'store_ref' => ['bail', 'required','string'],
+            ],
+            ['required' => ':attribute is required'],
+        )->stopOnFirstFailure(true);
+        if($validator->fails()){
+            return back()->with('error',$validator->errors());
+        }
+        $input = $request->input();
+        $businessExists = Businesses::where('merchant',$user->id)->where('businessRef',$input['store_ref'])->first();
+        if (empty($businessExists)){
+            return back()->with('error','Store does not belong to you.');
+        }
+        //check if business has api key
+        $hasApiKey = BusinessApiKey::where('business',$businessExists->id)->where('merchant',$user->id)->first();
+        if (empty($hasApiKey)) {
+            return back()->with('error','API KEY has not been generated for this business. Please use the
+            generate option before proceeding.');
+        }
+        //generating keys
+        $secret_key = $webSettings->siteAbbr.'_SEC_'.time().mt_rand();
+        $pub_key = $webSettings->siteAbbr.'_PUB_'.time().mt_rand();
+        $dataKey=[
+            'merchant'=>$user->id,
+            'business'=>$businessExists->id,
+            'secretKey'=>Crypt::encryptString($secret_key),
+            'publicKey'=>$pub_key,
+            'allowWithdrawal'=>$input['allow_withdrawal'],
+            'hashKey'=>Crypt::encryptString($input['secret_key']),
+            'ipn_url'=>$input['ipn_url']
+        ];
+        //create
+        $create = BusinessApiKey::where('id',$hasApiKey->id)->update($dataKey);
+        if (!empty($create)) {
+            return back()->with('success','Keys Regenerated');
+        }
+        return back()->with('error','Something went wrong. Try again or contact support.');
     }
 }

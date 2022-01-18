@@ -60,6 +60,8 @@ Route::get('supported-escrows',[HomeController::class,'supportedEscrows'])->name
 Route::get('terms',[HomeController::class,'terms'])->name('terms');
 Route::get('privacy',[HomeController::class,'terms'])->name('privacy');
 Route::get('developers',[HomeController::class,'developers'])->name('developers');
+Route::get('logistics',[HomeController::class,'logistics'])->name('logistics');
+Route::get('logistics/{id}/details',[HomeController::class,'logisticsDetails'])->name('logistic_detail');
 /* ========================== PAY THROUGH LINK ROUTE =============================*/
 Route::get('/send-money/{ref}',[\App\Http\Controllers\Web\PayLink::class,'index']);
 Route::post('/send-money/doSend',[\App\Http\Controllers\Web\PayLink::class,'doSend']);
@@ -70,7 +72,6 @@ Route::get('/pay/{ref}',[\App\Http\Controllers\Web\Pay_Merchant\Pay::class,'inde
 Route::post('/pay/doPay',[\App\Http\Controllers\Web\Pay_Merchant\Pay::class,'doPay']);
 Route::get('/pay/process_payment/{ref}/{linkRef}',[\App\Http\Controllers\Web\Pay_Merchant\Pay::class,'processPayment']);
 Route::get('/pay/check_status/{linkRef}/{ref}',[\App\Http\Controllers\Web\Pay_Merchant\Pay::class,'checkStatus']);
-
 
 Route::get('register',[RegisterController::class,'index'])->name('register_page');
 Route::get('login',[LoginController::class,'index'])->name('login');;
@@ -166,6 +167,8 @@ Route::middleware(['webTwoWay','auth'])->group( function () {
         Route::post('business/logo_change/{ref}',[Business::class,'updateLogo']);
         Route::get('business/{ref}/verify',[Business::class,'verify']);
         Route::post('business/{ref}/verify',[Business::class,'doVerify']);
+        Route::post('business/generate-key',[Business::class,'doGenerateApiKeys']);
+        Route::post('business/regenerate-key',[Business::class,'doReGenerateApiKeys']);
         /*======================= ESCROW ROUTE ==========================================*/
         Route::get('escrows',[Escrow::class,'index']);
         Route::get('new_escrow',[Escrow::class,'createEscrow']);
@@ -352,7 +355,20 @@ Route::middleware(['webTwoWay','auth'])->group( function () {
         /*======================= GENERALS  SETTINGSs ROUTE ==========================================*/
         Route::get('general_settings',[\App\Http\Controllers\Web\Admin\WebsiteSettings::class,'index']);
         Route::post('general_settings/edit',[\App\Http\Controllers\Web\Admin\WebsiteSettings::class,'doEdit']);
+        /*======================= DELIVERY SERVICES  SETTINGSs ROUTE ==========================================*/
+        Route::get('delivery_services',[\App\Http\Controllers\Web\Admin\DeliveryServices::class,'index']);
+        Route::get('delivery_services/edit/{id}',[\App\Http\Controllers\Web\Admin\DeliveryServices::class,'edit']);
+        Route::post('delivery_services/edit',[\App\Http\Controllers\Web\Admin\DeliveryServices::class,'doEdit']);
+        Route::post('delivery_services/add',[\App\Http\Controllers\Web\Admin\DeliveryServices::class,'doAdd']);
+        Route::get('delivery_services/delete/{id}',[\App\Http\Controllers\Web\Admin\DeliveryServices::class,'doDelete']);
+        /*======================= DELIVERY LOCATIONS  SETTINGSs ROUTE ==========================================*/
+        Route::get('delivery_location/{id}',[\App\Http\Controllers\Web\Admin\DeliveryServices::class,'deliveryLocation']);
+        Route::post('delivery_location/add',[\App\Http\Controllers\Web\Admin\DeliveryServices::class,'doAddLocation']);
+        Route::get('delivery_location/delete/{id}',[\App\Http\Controllers\Web\Admin\DeliveryServices::class,'doDeleteLocation']);
 
         Route::get('logout',[AuthController::class,'Logout']);
     });
 });
+
+/* ========================== WEBHOOK ROUTE =============================*/
+Route::post('webhook/transactions',[\App\Http\Controllers\Web\Webhook::class,'index']);

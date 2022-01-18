@@ -1,10 +1,12 @@
 <?php
 namespace App\Custom;
 
+use App\Models\BusinessApiKey;
 use App\Models\BusinessApiPayment;
 use App\Models\BusinessCategory;
 use App\Models\Businesses;
 use App\Models\BusinessSubcategory;
+use App\Models\DeliveryService;
 use App\Models\Escrows;
 use App\Models\FaqCategory;
 use App\Models\MerchantPayouts;
@@ -13,6 +15,7 @@ use App\Models\PaymentLinkPayments;
 use App\Models\Payouts;
 use App\Models\SendMoney;
 use App\Models\User;
+use Illuminate\Support\Facades\Crypt;
 
 /**
  *  custom checks for data in the database which will
@@ -187,5 +190,22 @@ class CustomChecks{
         $category = BusinessCategory::where('id',$id)->first();
         $name = $category->category_name;
         return $name;
+    }
+    public function getLogisticsId($id)
+    {
+        $delivery = DeliveryService::where('id',$id)->first();
+        $name = $delivery->name;
+        return $name;
+    }
+    public function getSecretKey($id)
+    {
+        $keys = BusinessApiKey::where('id',$id)->first();
+        $key = Crypt::decryptString($keys->secretKey);
+        return $key;
+    }
+    public function decryptKey($keys)
+    {
+        $key = Crypt::decryptString($keys);
+        return $key;
     }
 }

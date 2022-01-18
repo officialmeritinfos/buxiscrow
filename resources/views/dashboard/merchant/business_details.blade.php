@@ -246,7 +246,94 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-xl-12 col-lg-12 col-md-6 mx-auto">
+            <div class="main-content-body main-content-body-profile card mg-b-20">
+                <!-- main-profile-body -->
+                <div class="main-profile-body">
+                    <div class="tab-content">
+                        <div class="tab-pane show active" id="about">
+                            <div class="card-body">
+                                <h4 class="card-title">API KEY</h4>
+                                <div class="row">
+                                    @empty($apiKeys)
+                                        <div class="col-md-12 ">
+                                            <p class="text-info text-center" style="font-size:15px;">
+                                                You can generate an API KEY to allow integrate a third-party into your account.
+                                                You do not have any API Key associated with your account. Click the button below to
+                                                generate one for your account.
+                                                <br><br>
+                                                <button class="btn btn-md btn-info" data-toggle="modal" data-target="#generate_api_key"><i class="fa fa-key"></i>
+                                                    Generate Key
+                                                </button>
+                                            </p>
+                                        </div>
+                                    @endempty
+                                    @if (!empty($apiKeys))
+                                    @inject('option','App\Custom\CustomChecks')
+                                        <div class="col-md-12 mx-auto">
+                                            <div class="text-center">
+                                                <button class="btn btn-md btn-info" data-toggle="modal"
+                                                data-target="#regenerate_api_key"><i class="fa fa-key"></i>
+                                                    Regenerate Key
+                                                </button>
+                                            </div>
+                                            <br><br>
+                                            <form>
+                                                @csrf
+                                                <div class="row">
+                                                    <div class="form-group col-md-12">
+                                                        <label for="exampleInputEmail1" class="form-label">Secret Key</label>
+                                                        <input type="text" class="form-control form-control-md"
+                                                            id="exampleInputEmail1" value="{{$option->decryptKey($apiKeys->hashKey)}}"
+                                                            readonly>
+                                                    </div>
+                                                    <div class="form-group col-md-12">
+                                                        <label for="exampleInputEmail1" class="form-label">Webhook/IPN Url</label>
+                                                        <input type="url" class="form-control form-control-md"
+                                                            id="exampleInputEmail1" value="{{$apiKeys->ipn_url}}"
+                                                            readonly>
+                                                    </div>
+                                                    <div class="form-group col-md-12">
+                                                        <label for="exampleInputEmail1" class="form-label">Allow Withdrawal through Api</label>
+                                                        <select class="form-control form-control-md"
+                                                            id="exampleInputEmail1" name="allow_withdrawal">
+                                                            <option value="">Select Option</option>
+                                                            @if ($apiKeys->allowWithdrawal ==1)
+                                                                <option value="1" selected>Allow</option>
+                                                                <option value="2">Disable</option>
+                                                            @else
+                                                                <option value="1">Allow</option>
+                                                                <option value="2" selected>Disable</option>
+                                                            @endif
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group col-md-12">
+                                                        <label for="exampleInputEmail1" class="form-label">Secret Key</label>
+                                                        <input type="text" class="form-control form-control-md"
+                                                            id="exampleInputEmail1" value="{{$option->decryptKey($apiKeys->secretKey)}}"
+                                                            readonly>
+                                                    </div>
+                                                    <div class="form-group col-md-12">
+                                                        <label for="exampleInputEmail1" class="form-label">Public Key</label>
+                                                        <input type="text" class="form-control form-control-md"
+                                                            id="exampleInputEmail1" value="{{$apiKeys->publicKey}}"
+                                                            readonly>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
+
 </div>
 <!-- /Row -->
 

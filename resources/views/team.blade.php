@@ -199,7 +199,28 @@
 
                     <div class="content">
                         <h3>Odiaka Ugochukwu Zoe</h3>
-                        <span>CMO</span>
+                        <span>Content Writer</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 col-sm-6 mx-auto">
+                <div class="single-team-box">
+                    <div class="image">
+                        <img src="{{ asset('home/img/team-image/jona.jpeg')}}"
+                             alt="image" style="height:230px;">
+
+                        <ul class="social">
+                            <li><a href="#" target="_blank"><i class="bx bxl-facebook"></i></a></li>
+                            <li><a href="#" target="_blank"><i class="bx bxl-twitter"></i></a></li>
+                            <li><a href="#" target="_blank"><i class="bx bxl-linkedin"></i></a></li>
+                            <li><a href="#" target="_blank"><i class="bx bxl-instagram"></i></a></li>
+                        </ul>
+                    </div>
+
+                    <div class="content">
+                        <h3>Enyidede Jonathan</h3>
+                        <span>UI/UX Designer</span>
                     </div>
                 </div>
             </div>

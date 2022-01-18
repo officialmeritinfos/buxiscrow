@@ -173,6 +173,62 @@
             </div>
         </div>
     </div>
+
+    <div class="col-xl-6 col-lg-6 col-md-6 mx-auto">
+        <div class="main-content-body main-content-body-profile card mg-b-20">
+            <!-- main-profile-body -->
+            <div class="main-profile-body">
+                <div class="tab-content">
+                    <div class="tab-pane show active" id="about">
+                        <div class="card-body">
+                            <h4 class="card-title">Bank Details</h4>
+                            <div class="row">
+                                @empty($user_bank)
+                                    <div class="col-md-12 ">
+                                        <p class="text-danger text-center" style="font-size:15px;">
+                                            Your dedicated bank account has not been generated. Ensure you have submitted
+                                            your Bank Verification Number (BVN) for Identity verification - only then can you
+                                            receive your dedicated bank account.
+                                        </p>
+                                    </div>
+                                @endempty
+                                @if (!empty($user_bank))
+
+                                <div class="col-md-6 mx-auto">
+                                    <div class="table-responsive">
+                                        <table class="table mb-0">
+                                            <tbody>
+                                            <tr>
+                                                <td class="py-2 px-0">
+                                                    <span class="font-weight-semibold w-50">Account Name </span>
+                                                </td>
+                                                <td class="py-2 px-0">{{$user_bank->Account_name}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-2 px-0">
+                                                    <span class="font-weight-semibold w-50">Account Number </span>
+                                                </td>
+                                                <td class="py-2 px-0">{{$user_bank->Account_number}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-2 px-0">
+                                                    <span class="font-weight-semibold w-50">Bank </span>
+                                                </td>
+                                                <td class="py-2 px-0">{{$user_bank->Bank}}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 </div>
 

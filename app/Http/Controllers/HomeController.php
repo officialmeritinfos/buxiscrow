@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Businesses;
 use App\Models\CurrencyAccepted;
+use App\Models\DeliveryLocations;
+use App\Models\DeliveryService;
 use App\Models\Faq;
 use App\Models\FaqCategory;
 use App\Models\GeneralSettings;
@@ -118,5 +120,25 @@ class HomeController extends Controller
         $dataView=['web'=>$generalSettings,'pageName'=>$generalSettings->siteName.' Privacy Policy',
             'slogan'=>'How we store your data' ,];
         return view('privacy',$dataView);
+    }
+    public function logistics(){
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $businesses = DeliveryService::where('status',1)->paginate(15);
+        $currencies = CurrencyAccepted::where('status',1)->get();
+        $dataView=['web'=>$generalSettings,'pageName'=>$generalSettings->siteName.'Available Logistics Partners',
+            'slogan'=>'Safer Delivery','businesses'=>$businesses];
+        return view('logistics',$dataView);
+    }
+    public function logisticsDetails($id){
+        $generalSettings = GeneralSettings::where('id',1)->first();
+        $delivery = DeliveryService::where('status',1)->where('id',$id)->first();
+        if (empty($delivery)) {
+            return back()->with('error','Logistics Company not found');
+        }
+        $locations = DeliveryLocations::where('logisticsId',$id)->paginate(15);
+        $dataView=['web'=>$generalSettings,'pageName'=>$delivery->name,
+            'slogan'=>'Locations where '.$delivery->name.' Delivers To' ,
+            'delivery'=>$delivery,'locations'=>$locations];
+        return view('logistic_details',$dataView);
     }
 }
