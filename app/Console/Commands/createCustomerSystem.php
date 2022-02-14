@@ -18,7 +18,7 @@ class createCustomerSystem extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'This command creates a customer ';
 
     /**
      * Create a new command instance.
